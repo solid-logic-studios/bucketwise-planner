@@ -1,4 +1,21 @@
 services:
+  postgres:
+    image: postgres:14-alpine
+    environment:
+      POSTGRES_DB: bucketwise
+      POSTGRES_USER: bucketwise
+      POSTGRES_PASSWORD: your-secure-password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - bucketwise
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "bucketwise", "-d", "bucketwise"]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
   backend:
     build:
       context: .
@@ -8,7 +25,8 @@ services:
       NODE_ENV: production
       PORT: 3000
       STORAGE_METHOD: postgres
-      PG_CONNECTION_STRING: ${PG_CONNECTION_STRING}
+      # Use provided PG_CONNECTION_STRING, or default to local postgres service
+      PG_CONNECTION_STRING: ${PG_CONNECTION_STRING:-postgresql://bucketwise:your-secure-password@postgres:5432/bucketwise}
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
       JWT_SECRET: ${JWT_SECRET}
       ADMIN_SECRET: ${ADMIN_SECRET}
@@ -16,8 +34,12 @@ services:
     ports:
       - "3000:3000"
     networks:
-      - budgetwise
+      - bucketwise
     restart: unless-stopped
+    depends_on:
+      # Remove this if STORAGE_METHOD is not postgres (e.g. memory)
+      postgres:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
       interval: 30s
@@ -35,7 +57,7 @@ services:
     ports:
       - "5555:80"
     networks:
-      - budgetwise
+      - bucketwise
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:80"]
@@ -44,8 +66,11 @@ services:
       retries: 3
 
 networks:
-  budgetwise:
+  bucketwise:
     driver: bridge
+
+volumes:
+  postgres_data:
 
 x-casaos:
   architectures:
@@ -97,7 +122,7 @@ x-casaos:
       default: production
   tips:
     before_install:
-      - "Set PG_CONNECTION_STRING: postgresql://user:password@host:5432/budgetwise"
+      - "Set PG_CONNECTION_STRING: postgresql://user:password@host:5432/bucketwise"
       - "Generate JWT_SECRET: openssl rand -base64 32"
       - "Generate ADMIN_SECRET: openssl rand -base64 32"
       - "Optional: Set GEMINI_API_KEY and AI_ENABLED=true for AI chat feature"

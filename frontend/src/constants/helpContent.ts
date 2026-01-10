@@ -16,7 +16,7 @@ export const helpContent: Record<HelpPageKey, HelpPageContent> = {
       },
       {
         title: 'Quick Actions',
-        body: 'Record All Debt Payments logs every planned debt payment for this fortnight. Record Income pre-fills the total income for this period. Add Expense opens the transaction form for any spending.',
+        body: 'Record All Debt Payments logs every planned debt payment for this fortnight. Record Income pre-fills your Profile income (or current total for this period). Add Expense opens the transaction form for any spending.',
       },
       {
         title: 'Add Transaction Form',

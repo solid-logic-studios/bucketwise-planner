@@ -7,34 +7,34 @@ import type { DebtDTO, TransactionDTO } from '../api/types.js';
 import { FortnightSelector } from '../components/FortnightSelector.js';
 import { useHelp } from '../components/HelpDrawer.js';
 import {
-    AddTransactionModal,
-    DeleteConfirmationModal,
-    EditTransactionModal,
-    HistoricalComplianceCard,
-    PlanCard,
-    QuickActions,
-    SkipPaymentModal,
-    SummaryCards,
-    TransactionsHeader,
-    TransactionsTable,
+  AddTransactionModal,
+  DeleteConfirmationModal,
+  EditTransactionModal,
+  HistoricalComplianceCard,
+  PlanCard,
+  QuickActions,
+  SkipPaymentModal,
+  SummaryCards,
+  TransactionsHeader,
+  TransactionsTable,
 } from '../components/transactions/index.js';
 import { usePageDataContext } from '../contexts/PageContextProvider.js';
 import {
-    bucketOptions,
-    type BucketType,
-    type TransactionFilters,
-    type TransactionFormValues,
+  bucketOptions,
+  type BucketType,
+  type TransactionFilters,
+  type TransactionFormValues,
 } from '../hooks/transactions/types.js';
 import { useDebtPayments } from '../hooks/transactions/useDebtPayments.js';
 import { useFortnightDetail } from '../hooks/transactions/useFortnightDetail.js';
 import { useTransactionsData } from '../hooks/transactions/useTransactionsData.js';
-import { formatDateToISO } from '../utils/formatters.js';
+import { formatDate, formatDateToISO } from '../utils/formatters.js';
 import {
-    calculateBudgetVariance,
-    calculateComplianceScore,
-    getPlannedPayments,
-    normalizeDateInput,
-    type GroupBy,
+  calculateBudgetVariance,
+  calculateComplianceScore,
+  getPlannedPayments,
+  normalizeDateInput,
+  type GroupBy,
 } from '../utils/transactions.js';
 
 export function TransactionsView() {
@@ -410,11 +410,13 @@ export function TransactionsView() {
 
   const prefillIncome = () => {
     if (!fortnightDetail) return;
+    const amountCents =
+      (profile && profile.fortnightlyIncomeCents > 0 ? profile.fortnightlyIncomeCents : fortnightDetail.totalIncomeCents) || 0;
     form.setValues({
       bucket: 'Daily Expenses',
       kind: 'income',
-      description: `Income for fortnight starting ${fortnightDetail.periodStart}`,
-      amountDollars: fortnightDetail.totalIncomeCents / 100,
+      description: `Income for fortnight starting ${formatDate(fortnightDetail.periodStart)}`,
+      amountDollars: amountCents / 100,
       tags: ['income'],
       debtPayment: false,
       debtId: undefined,
@@ -422,6 +424,7 @@ export function TransactionsView() {
     });
     setAddModalOpen(true);
   };
+
 
   const prefillExpense = () => {
     form.setValues({

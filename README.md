@@ -164,6 +164,66 @@ cd frontend && pnpm dev  # http://localhost:5173
 
 **Development setup details:** [CONTRIBUTING.md](CONTRIBUTING.md)
 
+#### Local Database Setup (PostgreSQL)
+
+Bucketwise Planner uses PostgreSQL. For local development without Docker, set up a local database and run the schema initializer.
+
+Mac (Homebrew):
+
+```bash
+# Install and start Postgres 14
+brew install postgresql@14
+brew services start postgresql@14
+
+# Create database and user
+createdb budgetwise
+psql -d budgetwise <<'SQL'
+CREATE USER budgetwise WITH PASSWORD 'your-secure-password';
+GRANT ALL PRIVILEGES ON DATABASE budgetwise TO budgetwise;
+SQL
+
+# Set backend/.env
+cat > backend/.env <<'ENV'
+PG_CONNECTION_STRING=postgresql://budgetwise:your-secure-password@localhost:5432/budgetwise
+JWT_SECRET=replace-with-openssl-rand-base64-32
+ADMIN_SECRET=replace-with-openssl-rand-base64-32
+AI_ENABLED=false
+ENV
+
+# Apply schema (tables, indexes, columns)
+cd backend && pnpm run db:ensure-schema
+```
+
+Linux (apt-based):
+
+```bash
+sudo apt update && sudo apt install -y postgresql postgresql-contrib
+sudo systemctl enable --now postgresql
+
+# Create database and user
+sudo -u postgres createdb budgetwise
+sudo -u postgres psql <<'SQL'
+CREATE USER budgetwise WITH PASSWORD 'your-secure-password';
+GRANT ALL PRIVILEGES ON DATABASE budgetwise TO budgetwise;
+SQL
+
+# Set backend/.env
+cat > backend/.env <<'ENV'
+PG_CONNECTION_STRING=postgresql://budgetwise:your-secure-password@localhost:5432/budgetwise
+JWT_SECRET=replace-with-openssl-rand-base64-32
+ADMIN_SECRET=replace-with-openssl-rand-base64-32
+AI_ENABLED=false
+ENV
+
+# Apply schema
+cd backend && pnpm run db:ensure-schema
+```
+
+Notes:
+- You can alternatively use the Docker Compose `postgres` service in the Quick Start.
+- The schema initializer reads `PG_CONNECTION_STRING` from `backend/.env` and creates all required tables.
+- Regenerate strong secrets with: `openssl rand -base64 32`.
+
 ## 🔧 Configuration
 
 ### Required Environment Variables

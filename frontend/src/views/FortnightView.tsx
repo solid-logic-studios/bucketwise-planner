@@ -289,6 +289,28 @@ function FortnightContent({ fortnight }: { fortnight: FortnightDetailDTO }) {
         </Stack>
       </Card>
 
+      {fortnight.totalIncomeCents === 0 && (
+        <Card shadow="sm" padding="lg" radius="md" withBorder>
+          <Stack gap="xs">
+            <Text size="sm" fw={600}>No income recorded for this fortnight</Text>
+            <Text size="sm" c="dimmed">
+              After creating a fortnight, record your income to allocate bucket budgets.
+            </Text>
+            <Group>
+              <Button
+                variant="light"
+                size="xs"
+                rightSection={<IconExternalLink size={14} />}
+                component="a"
+                href={`#transactions?fortnightId=${fortnight.id}`}
+              >
+                Go to Transactions
+              </Button>
+            </Group>
+          </Stack>
+        </Card>
+      )}
+
       <Title order={3}>Bucket Breakdowns</Title>
 
       <SimpleGrid cols={{ base: 1, sm: 2, md: 4 }} spacing="md">

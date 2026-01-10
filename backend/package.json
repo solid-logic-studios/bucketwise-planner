@@ -9,8 +9,7 @@
     "test": "vitest run",
     "test:watch": "vitest watch",
     "test:coverage": "vitest run --coverage",
-    "db:ensure-schema": "tsx ./scripts/ensure-schema.ts",
-    "migrate:multi-user": "tsx ./scripts/migrate-to-multi-user.ts"
+    "db:ensure-schema": "tsx ./scripts/ensure-schema.ts"
   },
   "dependencies": {
     "@google/genai": "^1.34.0",

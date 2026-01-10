@@ -16,7 +16,7 @@ import { useDisclosure } from '@mantine/hooks';
 import { ModalsProvider } from '@mantine/modals';
 import { Notifications } from '@mantine/notifications';
 import { IconMessageChatbot } from '@tabler/icons-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { PageKey } from './api/types.js';
 import { HelpProvider } from './components/HelpDrawer.js';
 import { ChatProvider, ChatWidget, ProfileMenu, useChatContext } from './components/index.js';
@@ -50,8 +50,24 @@ function AppContent() {
   const { openChat } = useChatContext();
   const { pageData, setCurrentPage } = usePageDataContext();
 
+  // Sync hash changes (e.g., #transactions?fortnightId=123) to internal navigation
+  useEffect(() => {
+    const syncFromHash = () => {
+      const raw = window.location.hash.replace(/^#/, '');
+      const page = raw.split('?')[0] as NavKey;
+      if (navItems.some((n) => n.key === page)) {
+        setCurrentPage(page as PageKey);
+      }
+    };
+
+    syncFromHash();
+    window.addEventListener('hashchange', syncFromHash);
+    return () => window.removeEventListener('hashchange', syncFromHash);
+  }, [setCurrentPage]);
+
   const handleNavChange = (key: NavKey) => {
     setCurrentPage(key as PageKey);
+    window.location.hash = key;
     close();
   };
 

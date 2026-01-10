@@ -28,7 +28,7 @@ export function QuickActions({
           Record All Debt Payments
         </Button>
       </Tooltip>
-      <Tooltip label="Quick-record button that pre-fills the transaction form with your total fortnightly income" withArrow position="bottom">
+      <Tooltip label="Quick-record: pre-fills with your Profile income (or current total)" withArrow position="bottom">
         <Button variant="light" onClick={onPrefillIncome} disabled={incomeDisabled}>
           Record Income
         </Button>
