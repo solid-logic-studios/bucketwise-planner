@@ -1,0 +1,107 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    image: budgetwise-planner-backend:local
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      STORAGE_METHOD: postgres
+      PG_CONNECTION_STRING: ${PG_CONNECTION_STRING}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      JWT_SECRET: ${JWT_SECRET}
+      ADMIN_SECRET: ${ADMIN_SECRET}
+      AI_ENABLED: ${AI_ENABLED:-false}
+    ports:
+      - "3000:3000"
+    networks:
+      - budgetwise
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    image: budgetwise-planner-frontend:local
+    depends_on:
+      - backend
+    ports:
+      - "5555:80"
+    networks:
+      - budgetwise
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  budgetwise:
+    driver: bridge
+
+x-casaos:
+  architectures:
+    - amd64
+    - arm64
+  main: frontend
+  title:
+    en_us: Bucketwise Planner
+  description:
+    en_us: Multi-user budgeting app with bucket allocations and debt snowball payoff
+  tagline:
+    en_us: Personal finance planner with fortnightly budgeting
+  category: Finance
+  author: Bucketwise Planner Community
+  icon: https://raw.githubusercontent.com/tabler/tabler-icons/master/icons/wallet.svg
+  index: /
+  scheme: http
+  port_map:
+    - "5555"
+  envs:
+    - container: backend
+      name: PG_CONNECTION_STRING
+      label: Postgres connection string
+      description: Connection string for PostgreSQL database (required)
+    - container: backend
+      name: JWT_SECRET
+      label: JWT secret
+      description: Secret for JWT tokens (generate a strong random string, min 32 chars)
+    - container: backend
+      name: ADMIN_SECRET
+      label: Admin secret
+      description: Secret for admin operations (generate a strong random string)
+    - container: backend
+      name: GEMINI_API_KEY
+      label: Google AI API key (optional)
+      description: Get free key from https://aistudio.google.com/ to enable AI advisor
+    - container: backend
+      name: AI_ENABLED
+      label: Enable AI advisor
+      default: "false"
+      description: Set to "true" only if GEMINI_API_KEY is provided
+    - container: backend
+      name: STORAGE_METHOD
+      label: Storage method
+      default: postgres
+    - container: backend
+      name: NODE_ENV
+      label: Node environment
+      default: production
+  tips:
+    before_install:
+      - "Set PG_CONNECTION_STRING: postgresql://user:password@host:5432/budgetwise"
+      - "Generate JWT_SECRET: openssl rand -base64 32"
+      - "Generate ADMIN_SECRET: openssl rand -base64 32"
+      - "Optional: Set GEMINI_API_KEY and AI_ENABLED=true for AI chat feature"
+  ports:
+    - container: frontend
+      description: Web UI
+      port: "5555"

@@ -1,0 +1,24 @@
+{
+  "name": "budget_app",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Workspace root for backend and frontend packages",
+  "packageManager": "pnpm@10.25.0",
+  "scripts": {
+    "backend:dev": "pnpm --filter backend dev",
+    "frontend:dev": "pnpm --filter frontend dev",
+    "dev": "pnpm --parallel --filter backend --filter frontend dev",
+    "backend:build": "pnpm --filter backend build",
+    "frontend:build": "pnpm --filter frontend build",
+    "build": "pnpm -r run build",
+    "backend:test": "pnpm --filter backend test",
+    "backend:test:watch": "pnpm --filter backend test:watch",
+    "backend:test:coverage": "pnpm --filter backend test:coverage",
+    "frontend:test": "pnpm --filter frontend test",
+    "frontend:test:watch": "pnpm --filter frontend test:watch",
+    "frontend:test:coverage": "pnpm --filter frontend test:coverage",
+    "test": "pnpm -r run test",
+    "test:watch": "pnpm -r run test:watch",
+    "test:coverage": "pnpm -r run test:coverage"
+  }
+}

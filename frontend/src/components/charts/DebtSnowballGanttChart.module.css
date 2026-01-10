@@ -1,0 +1,14 @@
+.ganttBar {
+  position: relative;
+  height: 12px;
+  border-radius: 8px;
+  background: var(--mantine-color-night-9);
+  overflow: hidden;
+}
+
+.ganttBarFill {
+  position: absolute;
+  height: 100%;
+  background: var(--mantine-color-accent-5);
+  transition: left 300ms ease, width 300ms ease;
+}

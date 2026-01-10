@@ -1,0 +1,16 @@
+# Global owner
+* @PaulAtkins88
+
+# Backend
+/backend/ @PaulAtkins88
+
+# Frontend
+/frontend/ @PaulAtkins88
+
+# Documentation
+/docs/ @PaulAtkins88
+*.md @PaulAtkins88
+
+# Configuration
+/.github/ @PaulAtkins88
+docker-compose.yml @PaulAtkins88

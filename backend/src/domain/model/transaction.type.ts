@@ -1,0 +1,1 @@
+export type TransactionKind = 'income' | 'expense' | 'transfer';

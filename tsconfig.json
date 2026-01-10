@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "target": "es2022",
+    "lib": ["es2022"],
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "moduleDetection": "force",
+    "rootDir": ".",
+    "outDir": "./dist",
+    "types": ["node"],
+    "typeRoots": ["./backend/node_modules/@types", "./node_modules/@types"],
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+    "noUncheckedSideEffectImports": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": false,
+    "allowImportingTsExtensions": false,
+    "noEmit": false,
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true
+  },
+  "include": [
+    "backend/src/**/*.ts",
+    "backend/tests/**/*.ts"
+  ],
+  "exclude": ["node_modules", "dist", "frontend"]
+}
