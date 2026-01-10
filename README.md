@@ -77,29 +77,38 @@ This project implements the budgeting methodology created by **Scott Pape** in h
 
 **Docker Hub:** [Coming soon]
 
-Example `docker-compose.yml`:
+Example `docker-compose.yml` (Postgres + backend + frontend):
 
 ```yaml
 services:
   postgres:
     image: postgres:14-alpine
     environment:
-      POSTGRES_DB: budgetwise
-      POSTGRES_USER: budgetwise
+      POSTGRES_DB: bucketwise
+      POSTGRES_USER: bucketwise
       POSTGRES_PASSWORD: your-secure-password
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "bucketwise", "-d", "bucketwise"]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
 
   backend:
-    image: bucketwise-planner-backend:local
     build:
       context: .
       dockerfile: backend/Dockerfile
+    image: bucketwise-planner-backend:local
     environment:
       NODE_ENV: production
       PORT: 3000
-      PG_CONNECTION_STRING: postgresql://budgetwise:your-secure-password@postgres:5432/budgetwise
+      # Storage method will default to in-memory if postgres is not set here
+      STORAGE_METHOD: postgres
+      # Use provided PG_CONNECTION_STRING, or default to local postgres service
+      PG_CONNECTION_STRING: ${PG_CONNECTION_STRING:-postgresql://bucketwise:your-secure-password@postgres:5432/bucketwise}
       JWT_SECRET: your-jwt-secret-min-32-chars
       ADMIN_SECRET: your-admin-secret-min-32-chars
       AI_ENABLED: false
@@ -107,19 +116,25 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     restart: unless-stopped
 
   frontend:
-    image: bucketwise-planner-frontend:local
     build:
       context: .
       dockerfile: frontend/Dockerfile
-    ports:
-      - "5555:80"
+    image: bucketwise-planner-frontend:local
     depends_on:
       - backend
+    ports:
+      - "5555:80"
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
 volumes:
   postgres_data:
@@ -241,6 +256,7 @@ Notes:
 | `GEMINI_API_KEY` | Google AI key (for chat feature) | (disabled) |
 | `AI_ENABLED` | Enable AI advisor | `false` |
 | `VITE_API_BASE` | Frontend API endpoint | `http://localhost:3000` |
+| `STORAGE_METHOD` | Storage method for data | `postgres` (recommended) or `memory`
 
 **See .env.example files for all configuration options.**
 
