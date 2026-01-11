@@ -6,6 +6,7 @@ import { ListForthnightsUseCase } from '../../../application/use-cases/list-fort
 import { ListSkippedDebtPaymentsUseCase } from '../../../application/use-cases/list-skipped-debt-payments.use-case.js';
 import { ListTransactionsUseCase } from '../../../application/use-cases/list-transactions.use-case.js';
 import { ValidationError } from '../../../domain/exceptions/validation-error.js';
+import { toSingleString } from '../utils/request-helpers.js';
 import { BaseController } from './base.controller.js';
 
 /**
@@ -57,7 +58,7 @@ export class FortnightController extends BaseController {
    */
   async getFortnight(req: Request, res: Response): Promise<void> {
     const userId = (req as any).user.id;
-    const { id } = req.params;
+    const id = toSingleString(req.params.id);
 
     if (!id) {
       throw new ValidationError('Fortnight ID is required');
@@ -77,7 +78,7 @@ export class FortnightController extends BaseController {
    */
   async listSkippedDebtPayments(req: Request, res: Response): Promise<void> {
     const userId = (req as any).user.id;
-    const { id } = req.params;
+    const id = toSingleString(req.params.id);
 
     if (!id) {
       throw new ValidationError('Fortnight ID is required');

@@ -4,6 +4,7 @@ import type { TransactionDTO } from '../../../application/dtos/transaction.dto.j
 import { DeleteTransactionUseCase } from '../../../application/use-cases/delete-transaction.use-case.js';
 import { RecordTransactionUseCase } from '../../../application/use-cases/record-transaction.use-case.js';
 import { UpdateTransactionUseCase } from '../../../application/use-cases/update-transaction.use-case.js';
+import { toSingleString } from '../utils/request-helpers.js';
 import { BaseController } from './base.controller.js';
 
 /**
@@ -122,7 +123,7 @@ export class TransactionController extends BaseController {
    */
   async deleteTransaction(req: Request, res: Response): Promise<void> {
     const userId = (req as any).user.id;
-    const { id } = req.params;
+    const id = toSingleString(req.params.id);
     
     if (!id) {
       res.status(400).json({ success: false, error: { message: 'Transaction ID is required', code: 'MISSING_ID' } });
