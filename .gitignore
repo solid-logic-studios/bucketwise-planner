@@ -89,3 +89,4 @@ dist.tar.gz
 # Backend backups
 backend/backups/
 
+docker-compose-local.yml

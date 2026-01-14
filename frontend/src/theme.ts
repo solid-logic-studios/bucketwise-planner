@@ -1,5 +1,5 @@
-import type { MantineColorsTuple } from '@mantine/core';
-import { createTheme } from '@mantine/core';
+import type { MantineColorsTuple, MantineThemeOverride } from '@mantine/core';
+import { createTheme, virtualColor } from '@mantine/core';
 
 const night: MantineColorsTuple = [
   '#f0f5ff',
@@ -40,7 +40,7 @@ const amber: MantineColorsTuple = [
   '#59350c',
 ];
 
-export const theme = createTheme({
+const sharedThemeConfig: MantineThemeOverride = {
   fontFamily: 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
   headings: {
     fontFamily:
@@ -51,8 +51,35 @@ export const theme = createTheme({
     night,
     accent,
     amber,
+    // Virtual colors that switch based on theme
+    textMuted: virtualColor({
+      name: 'textMuted',
+      dark: 'gray.5',
+      light: 'gray.7',
+    }),
+    textSubtle: virtualColor({
+      name: 'textSubtle',
+      dark: 'gray.6',
+      light: 'gray.6',
+    }),
+    textSecondary: virtualColor({
+      name: 'textSecondary',
+      dark: 'gray.4',
+      light: 'gray.8',
+    }),
+    badgeSecondary: virtualColor({
+      name: 'badgeSecondary',
+      dark: 'gray',
+      light: 'gray',
+    }),
   },
   primaryColor: 'accent',
   primaryShade: { light: 5, dark: 5 },
   defaultRadius: 'md',
+};
+
+export const darkTheme = createTheme({
+  ...sharedThemeConfig,
 });
+
+export const theme = darkTheme;

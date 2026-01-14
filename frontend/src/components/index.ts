@@ -7,6 +7,7 @@ export { ErrorAlert } from './ErrorAlert.js';
 export { FortnightSelector } from './FortnightSelector.js';
 export { LoadingSpinner } from './LoadingSpinner.js';
 export { ProfileMenu } from './ProfileMenu.js';
+export { ThemeToggle } from './ThemeToggle.js';
 export { TokenUsageIndicator } from './TokenUsageIndicator.js';
 export { TransactionKindBadge } from './TransactionKindBadge.js';
 
@@ -19,5 +20,4 @@ export { FireExtinguisherWhatIfChart } from './charts/FireExtinguisherWhatIfChar
 export { IncomeExpensesTrendChart } from './charts/IncomeExpensesTrendChart.js';
 export { TagShareDonut } from './charts/TagShareDonut.js';
 export { TopTagsSpendingChart } from './charts/TopTagsSpendingChart.js';
-
 

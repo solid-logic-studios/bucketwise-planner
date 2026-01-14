@@ -6,6 +6,7 @@ import type {
     SkippedDebtPaymentDTO,
     TransactionDTO,
 } from '../../api/types.js';
+import { useThemeColors } from '../../hooks/useThemeColors.js';
 import { formatCurrency } from '../../utils/formatters.js';
 import { BucketBadge } from '../BucketBadge.js';
 import { DebtTypeBadge } from '../DebtTypeBadge.js';
@@ -65,6 +66,8 @@ export function PlanCard({
   isPaymentCompleted,
   getPaymentStatus,
 }: PlanCardProps) {
+  const { textMuted } = useThemeColors();
+
   return (
     <Card shadow="sm" padding="lg" radius="md" withBorder>
       <Stack gap="md">
@@ -79,7 +82,7 @@ export function PlanCard({
           {detailLoading && <LoadingSpinner />}
           {detailError && <ErrorAlert message={detailError} />}
           {!detailLoading && !detailError && (!fortnightDetail || fortnightDetail.bucketBreakdowns.length === 0) && (
-            <Text size="sm" c="dimmed">
+            <Text size="sm" c={textMuted}>
               No bucket allocations for this fortnight.
             </Text>
           )}
@@ -91,7 +94,7 @@ export function PlanCard({
                 <Stack key={bucket.bucket} gap={4}>
                   <Group justify="space-between">
                     <BucketBadge bucket={bucket.bucket} />
-                    <Text size="xs" c="dimmed">
+                    <Text size="xs" c={textMuted}>
                       {formatCurrency(bucket.spentCents)} / {formatCurrency(bucket.allocatedCents)}
                     </Text>
                   </Group>
@@ -106,7 +109,7 @@ export function PlanCard({
             Recurring Expenses
           </Text>
           {!profile || profile.fixedExpenses.length === 0 ? (
-            <Text size="sm" c="dimmed">
+            <Text size="sm" c={textMuted}>
               No recurring expenses configured.
             </Text>
           ) : (
@@ -125,7 +128,7 @@ export function PlanCard({
                       <Text size="sm">{expense.name}</Text>
                       <BucketBadge bucket={expense.bucket} />
                     </Group>
-                    <Text size="sm" c="dimmed" pl={28}>
+                    <Text size="sm" c={textMuted} pl={28}>
                       {formatCurrency(expense.amountCents)}
                     </Text>
                   </Stack>
@@ -147,7 +150,7 @@ export function PlanCard({
         {planLoading && <LoadingSpinner />}
         {planError && <ErrorAlert message={planError} />}
         {!planLoading && !planError && !fortnightEntry && (
-          <Text size="sm" c="dimmed">
+          <Text size="sm" c={textMuted}>
             No debt payments scheduled for this fortnight.
           </Text>
         )}
@@ -184,7 +187,7 @@ export function PlanCard({
                         </Badge>
                       )}
                     </Group>
-                    <Text size="sm" c="dimmed" pl={28}>
+                    <Text size="sm" c={textMuted} pl={28}>
                       {formatCurrency(fortnightEntry.paymentToActiveDebtCents)} payment
                     </Text>
                     {skippedPayments[fortnightEntry.debtBeingPaid.id]?.skipReason && (
@@ -257,7 +260,7 @@ export function PlanCard({
                           </Badge>
                         )}
                       </Group>
-                      <Text size="sm" c="dimmed" pl={28}>
+                      <Text size="sm" c={textMuted} pl={28}>
                         {formatCurrency(payment.minimumPaymentCents)} minimum
                       </Text>
                       {skippedPayments[payment.debtId]?.skipReason && (

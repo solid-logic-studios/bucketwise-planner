@@ -49,7 +49,7 @@ export function ProfileMenu() {
         <UnstyledButton>
           <Group gap="xs" align="center">
             <Avatar src={avatarUrl ?? undefined} color="teal" radius="xl" size={28}>{initial}</Avatar>
-            <Text size="sm" visibleFrom="sm" c="gray.1">
+            <Text size="sm" visibleFrom="sm" c="textSecondary">
               {displayName}
             </Text>
           </Group>

@@ -19,7 +19,7 @@ import { IconMessageChatbot } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
 import type { PageKey } from './api/types.js';
 import { HelpProvider } from './components/HelpDrawer.js';
-import { ChatProvider, ChatWidget, ProfileMenu, useChatContext } from './components/index.js';
+import { ChatProvider, ChatWidget, ProfileMenu, ThemeToggle, useChatContext } from './components/index.js';
 import { ProtectedRoute } from './components/ProtectedRoute.js';
 import { AuthProvider } from './contexts/AuthProvider.js';
 import { PageContextProvider, usePageDataContext } from './contexts/PageContextProvider.js';
@@ -109,6 +109,7 @@ function AppContent() {
               </Badge>
             </Group>
             <Group gap="xs" align="center">
+              <ThemeToggle />
               <ProfileMenu />
               <Tooltip label="Chat with Barefoot Advisor">
                 <ActionIcon

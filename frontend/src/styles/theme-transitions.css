@@ -1,0 +1,17 @@
+/* Smooth theme transition */
+:root {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+html {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Apply transitions to Mantine components */
+[data-mantine-color-scheme] {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}

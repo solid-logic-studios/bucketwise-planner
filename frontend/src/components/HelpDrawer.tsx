@@ -14,6 +14,7 @@ import { IconSearch, IconX } from '@tabler/icons-react';
 import type { ReactNode } from 'react';
 import { createContext, useContext, useMemo, useState } from 'react';
 import { helpContent } from '../constants/helpContent.js';
+import { useThemeColors } from '../hooks/useThemeColors.js';
 import type { HelpPageContent, HelpPageKey } from '../types/help.js';
 
 interface HelpContextValue {
@@ -37,6 +38,7 @@ export function HelpProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState<HelpPageKey>('transactions');
   const [searchTerm, setSearchTerm] = useState('');
+  const { textMuted, badgeSecondary } = useThemeColors();
 
   const openHelp = (key: HelpPageKey) => {
     setCurrentPage(key);
@@ -83,12 +85,12 @@ export function HelpProvider({ children }: { children: ReactNode }) {
         title={
           <Group justify="space-between" align="center" style={{ width: '100%' }}>
             <div>
-              <Text size="xs" c="dimmed" fw={600}>
+              <Text size="xs" c={textMuted} fw={600}>
                 Help
               </Text>
               <Title order={4}>{content.title}</Title>
               {content.description && (
-                <Text size="sm" c="dimmed">
+                <Text size="sm" c={textMuted}>
                   {content.description}
                 </Text>
               )}
@@ -111,7 +113,7 @@ export function HelpProvider({ children }: { children: ReactNode }) {
           {content.tags && content.tags.length > 0 && (
             <Group gap="xs">
               {content.tags.map((tag) => (
-                <Badge key={tag} size="xs" variant="light" color="gray">
+                <Badge key={tag} size="xs" variant="light" color={badgeSecondary}>
                   {tag}
                 </Badge>
               ))}
@@ -121,15 +123,15 @@ export function HelpProvider({ children }: { children: ReactNode }) {
           <ScrollArea style={{ flex: 1 }}>
             <Stack gap="md">
               {filteredSections.length === 0 && (
-                <Text size="sm" c="dimmed">
+                <Text size="sm" c={textMuted}>
                   No help topics match your search.
                 </Text>
               )}
 
               {filteredSections.map((section) => (
-                <Stack key={section.title} gap={4} p="xs" style={{ borderRadius: 8, background: 'var(--mantine-color-dark-7)' }}>
+                <Stack key={section.title} gap={4} p="xs" style={{ borderRadius: 8, background: 'var(--mantine-color-default-hover)' }}>
                   <Text fw={700}>{section.title}</Text>
-                  <Text size="sm" c="gray.2">
+                  <Text size="sm" c={textMuted}>
                     {section.body}
                   </Text>
                 </Stack>
@@ -154,10 +156,10 @@ export function HelpProvider({ children }: { children: ReactNode }) {
                     <Group key={`${match.page.key}-${match.title}`} justify="space-between" align="flex-start">
                       <Stack gap={2} style={{ flex: 1 }}>
                         <Text fw={600}>{match.title}</Text>
-                        <Text size="xs" c="gray.3">
+                        <Text size="xs">
                           {match.body}
                         </Text>
-                        <Badge size="xs" color="gray" variant="light" style={{ width: 'fit-content' }}>
+                        <Badge size="xs" color={badgeSecondary} variant="light" style={{ width: 'fit-content' }}>
                           {match.page.title}
                         </Badge>
                       </Stack>

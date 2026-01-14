@@ -28,6 +28,7 @@ import {
 import { useDebtPayments } from '../hooks/transactions/useDebtPayments.js';
 import { useFortnightDetail } from '../hooks/transactions/useFortnightDetail.js';
 import { useTransactionsData } from '../hooks/transactions/useTransactionsData.js';
+import { useThemeColors } from '../hooks/useThemeColors.js';
 import { formatDate, formatDateToISO } from '../utils/formatters.js';
 import {
   calculateBudgetVariance,
@@ -88,15 +89,7 @@ export function TransactionsView() {
     isPaymentCompleted: isPaymentCompletedRaw,
   } = useDebtPayments();
 
-  useHotkeys([
-    [
-      'mod+/',
-      () => {
-        if (addModalOpen || skipModalOpen) return;
-        openHelp('transactions');
-      },
-    ],
-  ]);
+  const { badgeSecondary } = useThemeColors();
 
   const form = useForm<TransactionFormValues>({
     initialValues: {
@@ -167,6 +160,16 @@ export function TransactionsView() {
   useEffect(() => {
     loadSkippedPayments(selectedFortnightId);
   }, [loadSkippedPayments, selectedFortnightId]);
+
+  useHotkeys([
+    [
+      'mod+/',
+      () => {
+        if (addModalOpen || skipModalOpen) return;
+        openHelp('transactions');
+      },
+    ],
+  ]);
 
   useEffect(() => {
     api
@@ -475,7 +478,7 @@ export function TransactionsView() {
       <Group justify="space-between" align="center">
         <FortnightSelector selectedFortnightId={selectedFortnightId} onFortnightChange={handleFortnightChange} />
         {isHistoricalFortnight && (
-          <Badge color="gray" variant="light" size="lg">
+          <Badge color={badgeSecondary} variant="light" size="lg">
             🔒 Past Fortnight (Read-only)
           </Badge>
         )}
