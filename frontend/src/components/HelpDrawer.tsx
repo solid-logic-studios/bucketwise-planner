@@ -1,14 +1,14 @@
 import {
-    ActionIcon,
-    Badge,
-    Button,
-    Drawer,
-    Group,
-    ScrollArea,
-    Stack,
-    Text,
-    TextInput,
-    Title,
+  ActionIcon,
+  Badge,
+  Button,
+  Drawer,
+  Group,
+  ScrollArea,
+  Stack,
+  Text,
+  TextInput,
+  Title,
 } from '@mantine/core';
 import { IconSearch, IconX } from '@tabler/icons-react';
 import type { ReactNode } from 'react';
