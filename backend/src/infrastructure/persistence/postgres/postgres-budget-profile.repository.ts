@@ -18,6 +18,7 @@ type ProfileRow = {
     bucket: BarefootBucket;
     amountCents: number;
   }>;
+  timezone: string;
   created_at: string;
   updated_at: string;
 };
@@ -48,14 +49,15 @@ export class PostgresBudgetProfileRepository
 
     const query = `
       INSERT INTO budget_profiles (
-        id, user_id, fortnightly_income_cents, default_fire_extinguisher_cents, default_fire_extinguisher_bps, fixed_expenses, created_at, updated_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
+        id, user_id, fortnightly_income_cents, default_fire_extinguisher_cents, default_fire_extinguisher_bps, fixed_expenses, timezone, created_at, updated_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), NOW())
       ON CONFLICT (id)
       DO UPDATE SET
         fortnightly_income_cents = EXCLUDED.fortnightly_income_cents,
         default_fire_extinguisher_cents = EXCLUDED.default_fire_extinguisher_cents,
         default_fire_extinguisher_bps = EXCLUDED.default_fire_extinguisher_bps,
         fixed_expenses = EXCLUDED.fixed_expenses,
+        timezone = EXCLUDED.timezone,
         updated_at = NOW();
     `;
 
@@ -66,6 +68,7 @@ export class PostgresBudgetProfileRepository
       profile.defaultFireExtinguisherAmount.cents,
       profile.defaultFireExtinguisherBps,
       JSON.stringify(fixedExpenses),
+      profile.timezone,
     ]);
   }
 
@@ -82,6 +85,7 @@ export class PostgresBudgetProfileRepository
       new Money(Number(row.fortnightly_income_cents)),
       this.resolveBps(row),
       fixedExpenses,
+      row.timezone || 'UTC',
       new Date(row.created_at),
       new Date(row.updated_at)
     );

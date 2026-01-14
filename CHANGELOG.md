@@ -5,6 +5,44 @@ All notable changes to Bucketwise Planner will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2026-01-15
+
+### Added
+- **User timezone support**: Users can now set their local timezone in Profile settings
+- **Timezone-aware fortnight boundaries**: Transactions are now matched to fortnights using the user's local calendar, not UTC
+- New `TimezoneService` domain service for consistent timezone conversions across the application
+- Timezone picker in Profile view with common IANA timezones (Australia/Melbourne, Europe/Copenhagen, UTC, etc.)
+- Database schema additions: `timezone` column in `budget_profiles`, UTC boundary columns in `fortnight_snapshots`
+- Backfill script for migrating existing data to new timezone-aware schema
+
+### Changed
+- **Half-open interval semantics**: Fortnight date ranges now use `[start, end)` (exclusive end) instead of `[start, end]` (inclusive end) to eliminate fencepost errors
+- Updated `GetFortnightUseCase` to compute UTC boundaries from user's local timezone
+- Updated `PostgresTransactionRepository.findByDateRange()` to use `< endDate` instead of `<= endDate`
+- Profile API now accepts and returns `timezone` field (defaults to 'UTC' for backward compatibility)
+
+### Fixed
+- **Critical timezone bug**: Transactions recorded before UTC midnight but on the correct local calendar day are now correctly included in the fortnight
+- **Example**: Users in Australia/Melbourne (UTC+11) recording transactions at 9:00 AM local time (22:00 UTC previous day) no longer need to fabricate later times to ensure inclusion
+- Fencepost errors at 23:59:59.999 boundaries eliminated with half-open intervals
+
+### Technical Details
+- **Dependencies**: Added `date-fns-tz@3.2.0` for DST-aware timezone conversions
+- **Backward compatibility**: All changes are non-breaking; existing users default to 'UTC' timezone
+- **Migration**: Idempotent backfill script populates new columns for existing fortnights
+- **Testing**: 87 tests passing (20 new timezone service tests covering DST, edge cases, multiple timezones)
+- **Documentation**: Updated ARCHITECTURE.md with timezone model explanation
+
+### Migration Notes
+1. Run migration: `psql < backend/migrations/001-add-timezone-support.sql`
+2. Run backfill: `pnpm tsx backend/scripts/backfill-timezone-boundaries.ts`
+3. Users can now set their timezone in Profile view (optional; defaults to UTC)
+
+### Attribution
+See [docs/plan-timezoneFix.prompt.md](docs/plan-timezoneFix.prompt.md) for full implementation details.
+
+---
+
 ## [0.1.0] - 2026-01-10
 
 ### Added
@@ -56,4 +94,5 @@ Learn more: https://www.barefootinvestor.com/
 
 ---
 
+[0.2.0]: https://github.com/PaulAtkins88/bucketwise-planner/releases/tag/v0.2.0
 [0.1.0]: https://github.com/PaulAtkins88/bucketwise-planner/releases/tag/v0.1.0

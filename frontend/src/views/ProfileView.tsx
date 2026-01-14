@@ -43,12 +43,14 @@ interface FixedExpenseForm {
 interface ProfileFormValues {
   fortnightlyIncomeDollars: number;
   defaultFireExtinguisherPercent: number;
+  timezone: string;
   fixedExpenses: FixedExpenseForm[];
 }
 
 interface ProfilePayload {
   fortnightlyIncomeCents: number;
   defaultFireExtinguisherPercent: number;
+  timezone: string;
   fixedExpenses: Array<{
     id?: string;
     name: string;
@@ -61,6 +63,7 @@ function mapDtoToForm(dto: ProfileDTO): ProfileFormValues {
   return {
     fortnightlyIncomeDollars: dto.fortnightlyIncomeCents / 100,
     defaultFireExtinguisherPercent: dto.defaultFireExtinguisherPercent,
+    timezone: dto.timezone || 'UTC',
     fixedExpenses: dto.fixedExpenses.map((fx) => ({
       id: fx.id,
       name: fx.name,
@@ -74,6 +77,7 @@ function mapFormToPayload(values: ProfileFormValues): ProfilePayload {
   return {
     fortnightlyIncomeCents: Math.round(values.fortnightlyIncomeDollars * 100),
     defaultFireExtinguisherPercent: values.defaultFireExtinguisherPercent,
+    timezone: values.timezone,
     fixedExpenses: values.fixedExpenses.map((fx) => ({
       id: fx.id,
       name: fx.name,
@@ -102,11 +106,13 @@ export function ProfileView() {
     initialValues: {
       fortnightlyIncomeDollars: 0,
       defaultFireExtinguisherPercent: 0,
+      timezone: 'UTC',
       fixedExpenses: [],
     },
     validate: {
       fortnightlyIncomeDollars: (value) => (value < 0 ? 'Income must be zero or greater' : null),
       defaultFireExtinguisherPercent: (value) => (value < 0 || value > 100 ? 'Percent must be between 0 and 100' : null),
+      timezone: (value) => (!value ? 'Timezone is required' : null),
       fixedExpenses: {
         name: (value) => (!value.trim() ? 'Name is required' : null),
         amountDollars: (value) => (value <= 0 ? 'Amount must be greater than 0' : null),
@@ -373,6 +379,30 @@ export function ProfileView() {
             <Text size="sm" c="dimmed">
               ≈ {formatCurrency(computedFireExtinguisherCents)} per fortnight at this percent
             </Text>
+              {/* TODO: This should not be hardcoded, should pull from a source or static file */}
+            <Select
+              label="Timezone"
+              description="Your local timezone for accurate transaction date boundaries"
+              required
+              searchable
+              data={[
+                { value: 'UTC', label: 'UTC (Coordinated Universal Time)' },
+                { value: 'Australia/Melbourne', label: 'Australia/Melbourne (AEDT/AEST)' },
+                { value: 'Australia/Sydney', label: 'Australia/Sydney (AEDT/AEST)' },
+                { value: 'Australia/Brisbane', label: 'Australia/Brisbane (AEST)' },
+                { value: 'Australia/Perth', label: 'Australia/Perth (AWST)' },
+                { value: 'Europe/Copenhagen', label: 'Europe/Copenhagen (CEST/CET)' },
+                { value: 'Europe/London', label: 'Europe/London (BST/GMT)' },
+                { value: 'Europe/Paris', label: 'Europe/Paris (CEST/CET)' },
+                { value: 'America/New_York', label: 'America/New_York (EDT/EST)' },
+                { value: 'America/Los_Angeles', label: 'America/Los_Angeles (PDT/PST)' },
+                { value: 'America/Chicago', label: 'America/Chicago (CDT/CST)' },
+                { value: 'Asia/Tokyo', label: 'Asia/Tokyo (JST)' },
+                { value: 'Asia/Singapore', label: 'Asia/Singapore (SGT)' },
+                { value: 'Pacific/Auckland', label: 'Pacific/Auckland (NZDT/NZST)' },
+              ]}
+              {...form.getInputProps('timezone')}
+            />
 
             <Stack gap="sm">
               <Group justify="space-between" align="center">

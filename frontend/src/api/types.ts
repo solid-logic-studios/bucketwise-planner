@@ -138,6 +138,7 @@ export interface ProfileDTO {
   defaultFireExtinguisherPercent: number;
   defaultFireExtinguisherAmountCents: number;
   fixedExpenses: FixedExpenseDTO[];
+  timezone: string;
 }
 
 export interface SkippedDebtPaymentDTO {

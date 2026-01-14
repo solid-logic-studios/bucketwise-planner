@@ -1,7 +1,9 @@
 import { ValidationError } from '../../domain/exceptions/validation-error.js';
 import { Money } from '../../domain/model/money.js';
+import type { BudgetProfileRepository } from '../../domain/repositories/budget-profile.repository.interface.js';
 import type { FortnightSnapshotRepository } from '../../domain/repositories/fortnight-snapshot.repository.interface.js';
 import type { TransactionRepository } from '../../domain/repositories/transaction.repository.interface.js';
+import { TimezoneService } from '../../domain/services/timezone.service.js';
 import type { BucketBreakdown, FortnightDetailDTO } from '../dtos/fortnight-detail.dto.js';
 import { UseCase } from './base.use-case.js';
 
@@ -19,18 +21,23 @@ interface GetFortnightRequest {
  * Dynamically loads transactions within the fortnight period to provide current data.
  * Calculates Fire Extinguisher allocation for debt payoff projection.
  * 
+ * Timezone-aware (v0.2.0+): Converts fortnight boundaries from user's local calendar
+ * days to UTC bounds before querying transactions. This ensures transactions recorded
+ * around midnight are assigned to the correct fortnight regardless of user timezone.
+ * 
  * @extends BaseUseCase
  * @example
  * ```typescript
- * const useCase = new GetFortnightUseCase(fortnightRepo, transactionRepo);
- * const result = await useCase.execute({ fortnightId: 'fortnight-1' });
- * console.log(result.fireExtinguisherAmountCents); // Shows monthly debt payment
+ * const useCase = new GetFortnightUseCase(fortnightRepo, transactionRepo, profileRepo);
+ * const result = await useCase.execute({ userId: 'user-1', fortnightId: 'fortnight-1' });
+ * console.log(result.fireExtinguisherAmountCents); // Shows fortnightly debt payment
  * ```
  */
 export class GetFortnightUseCase extends UseCase<GetFortnightRequest, FortnightDetailDTO> {
   constructor(
     private fortnightSnapshotRepository: FortnightSnapshotRepository,
     private transactionRepository: TransactionRepository,
+    private budgetProfileRepository: BudgetProfileRepository,
   ) {
     super();
   }
@@ -42,11 +49,20 @@ export class GetFortnightUseCase extends UseCase<GetFortnightRequest, FortnightD
       throw new ValidationError(`Fortnight with ID ${request.fortnightId} not found`);
     }
 
-    // Load transactions dynamically from the period (not from stale snapshot)
+    // Get user's timezone; fall back to 'UTC' if not set
+    const profile = await this.budgetProfileRepository.getProfile(request.userId);
+    const timezone = profile?.timezone ?? 'UTC';
+
+    // Compute UTC bounds using TimezoneService (half-open interval: [startUtc, endUtcExclusive))
+    const localStart = snapshot.periodStart.toISOString().split('T')[0]!; // YYYY-MM-DD (always has date part)
+    const localEnd = snapshot.periodEnd.toISOString().split('T')[0]!;     // YYYY-MM-DD (always has date part)
+    const { startUtc, endUtcExclusive } = TimezoneService.getFortnightBoundsUtc(localStart, localEnd, timezone);
+
+    // Query transactions with half-open bounds (>= startUtc, < endUtcExclusive)
     const allTransactions = await this.transactionRepository.getAll(request.userId);
     const periodTransactions = allTransactions.filter(tx => {
       const txDate = tx.occurredAt;
-      return txDate >= snapshot.periodStart && txDate <= snapshot.periodEnd;
+      return txDate >= startUtc && txDate < endUtcExclusive; // half-open interval
     });
 
     // Calculate income and expenses from live transaction data

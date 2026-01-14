@@ -38,6 +38,7 @@ export class ProfileController extends BaseController {
         bucket: fx.bucket,
         amountCents: fx.amountCents,
       })),
+      timezone: validated.timezone,
     });
     this.sendSuccess(res, result);
   }
