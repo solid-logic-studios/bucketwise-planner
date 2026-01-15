@@ -17,6 +17,7 @@ export interface UpsertProfileInput {
     bucket: BarefootBucket;
     amountCents: number;
   }>;
+  timezone?: string;
 }
 
 export class UpsertProfileUseCase extends UseCase<UpsertProfileInput, ProfileDTO> {
@@ -36,7 +37,8 @@ export class UpsertProfileUseCase extends UseCase<UpsertProfileInput, ProfileDTO
       'profile',
       new Money(input.fortnightlyIncomeCents),
       Math.round(input.defaultFireExtinguisherPercent * 100),
-      fixedExpenses
+      fixedExpenses,
+      input.timezone || 'UTC'
     );
 
     await this.repo.saveProfile(input.userId, profile);
@@ -51,6 +53,7 @@ export class UpsertProfileUseCase extends UseCase<UpsertProfileInput, ProfileDTO
         bucket: fx.bucket,
         amountCents: fx.amount.cents,
       })),
+      timezone: profile.timezone,
     };
   }
 }

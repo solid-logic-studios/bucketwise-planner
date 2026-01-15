@@ -12,6 +12,7 @@ export const upsertProfileSchema = z.object({
   fortnightlyIncomeCents: z.number().int().nonnegative(),
   defaultFireExtinguisherPercent: z.number().min(0).max(100),
   fixedExpenses: z.array(fixedExpenseSchema).optional().default([]),
+  timezone: z.string().optional().default('UTC'),
 });
 
 export type UpsertProfileSchemaType = z.infer<typeof upsertProfileSchema>;

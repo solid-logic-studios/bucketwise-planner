@@ -126,6 +126,7 @@ pnpm test:coverage    # Coverage report
 
 - **DDD (Domain-Driven Design)**: Domain logic is isolated and framework-agnostic
 - **Repository Pattern**: Swap `MemoryTransactionRepository` for Postgres/SQLite without changing domain code
+- **Timezone-Aware Date Handling** (v0.2.0+): Fortnight boundaries evaluated in user's local timezone via `TimezoneService`, preventing UTC/local calendar day mismatches
 - **SOLID Principles**:
   - **S**ingle Responsibility: Each class has one reason to change
   - **O**pen/Closed: Open for extension (new repo implementations), closed for modification

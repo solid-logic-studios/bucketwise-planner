@@ -115,7 +115,7 @@ export async function createApp(): Promise<Application> {
   const updateTransactionUseCase = new UpdateTransactionUseCase(transactionRepo);
   const deleteTransactionUseCase = new DeleteTransactionUseCase(transactionRepo);
   const createFortnightUseCase = new CreateFortnightUseCase(fortnightRepo);
-  const getFortnightUseCase = new GetFortnightUseCase(fortnightRepo, transactionRepo);
+  const getFortnightUseCase = new GetFortnightUseCase(fortnightRepo, transactionRepo, profileRepo);
   const listForthnightsUseCase = new ListForthnightsUseCase(fortnightRepo, transactionRepo);
   const listTransactionsUseCase = new ListTransactionsUseCase(transactionRepo);
   const listSkippedDebtPaymentsUseCase = new ListSkippedDebtPaymentsUseCase(skippedDebtPaymentRepo);

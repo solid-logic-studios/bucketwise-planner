@@ -24,6 +24,7 @@ export class MemoryBudgetProfileRepository implements BudgetProfileRepository {
           id: fx.id || randomUUID(),
           amount: new Money(fx.amount.cents),
         })),
+        profile.timezone || 'UTC',
         profile.createdAt,
         new Date()
       )

@@ -117,6 +117,30 @@ All income is allocated into four buckets:
 - Returns YYYY-MM-DD format to prevent timezone drift
 - Critical for fortnight matching and transaction date accuracy
 
+**Timezone Model (v0.2.0+):**
+
+Fortnights are evaluated in the user's local calendar, not UTC. This ensures transactions recorded around midnight are assigned to the intended fortnight regardless of the user's timezone.
+
+**Design:**
+- All event timestamps are stored in UTC
+- User timezone (IANA, e.g., `Australia/Melbourne`) is stored in their profile
+- Fortnight boundaries are interpreted as local calendar days:
+  - Start: user's local midnight (converted to UTC)
+  - End: exclusive boundary at midnight of the day after the local end date (converted to UTC)
+- Server-side conversion: `TimezoneService.getFortnightBoundsUtc()` computes UTC bounds from local dates and user timezone
+- Frontend coordination: Users select timezone in Profile view; backend uses it for all date boundary calculations
+- Half-open interval: `[startUtc, endUtcExclusive)` — includes start, excludes end (standard practice)
+
+**Example:**
+- User in Australia/Melbourne records transaction at 2026-01-14 09:00 AEDT (2026-01-13 22:00 UTC)
+- Fortnight is defined as local 2026-01-14 to 2026-01-27
+- TimezoneService computes: startUtc = 2026-01-13 13:00 UTC, endUtcExclusive = 2026-01-27 13:00 UTC
+- Transaction at 22:00 UTC on Jan 13 is >= startUtc and < endUtcExclusive, so it's included ✓
+
+**DST Note:**
+- `date-fns-tz` library handles DST transitions correctly; no special handling needed in application code
+- Boundaries automatically adjust during DST changes (e.g., spring forward, fall back)
+
 **API Envelope:**
 ```typescript
 {

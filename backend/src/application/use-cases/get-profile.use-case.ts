@@ -14,6 +14,7 @@ export interface ProfileDTO {
   defaultFireExtinguisherPercent: number;
   defaultFireExtinguisherAmountCents: number;
   fixedExpenses: FixedExpenseDTO[];
+  timezone: string;
 }
 
 const DEFAULT_PROFILE: ProfileDTO = {
@@ -21,6 +22,7 @@ const DEFAULT_PROFILE: ProfileDTO = {
   defaultFireExtinguisherPercent: 0,
   defaultFireExtinguisherAmountCents: 0,
   fixedExpenses: [],
+  timezone: 'UTC',
 };
 
 export interface GetProfileRequest {
@@ -51,6 +53,7 @@ export class GetProfileUseCase extends UseCase<GetProfileRequest, ProfileDTO> {
         bucket: fx.bucket,
         amountCents: fx.amount.cents,
       })),
+      timezone: profile.timezone,
     };
   }
 }

@@ -14,12 +14,14 @@ export class BudgetProfile extends BaseEntity {
   readonly fortnightlyIncome: Money;
   readonly defaultFireExtinguisherBps: number; // basis points (0-10000)
   readonly fixedExpenses: FixedExpense[];
+  readonly timezone: string; // IANA timezone identifier (e.g., 'Australia/Melbourne', 'UTC')
 
   constructor(
     id: string,
     fortnightlyIncome: Money,
     defaultFireExtinguisherBps: number,
     fixedExpenses: FixedExpense[],
+    timezone: string = 'UTC',
     createdAt?: Date,
     updatedAt?: Date
   ) {
@@ -33,6 +35,7 @@ export class BudgetProfile extends BaseEntity {
     this.fortnightlyIncome = fortnightlyIncome;
     this.defaultFireExtinguisherBps = Math.round(defaultFireExtinguisherBps);
     this.fixedExpenses = fixedExpenses;
+    this.timezone = timezone;
   }
 
   get defaultFireExtinguisherAmount(): Money {

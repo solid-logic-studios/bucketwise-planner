@@ -63,9 +63,16 @@ export class PostgresTransactionRepository
     return result.rows.map(mapRowToTransaction);
   }
 
+  /**
+   * Find transactions within a date range using half-open interval semantics.
+   * @param userId User ID
+   * @param startDate Inclusive start (>=)
+   * @param endDate Exclusive end (<) - transactions on this date/time are NOT included
+   * @returns Transactions ordered by occurred_at DESC
+   */
   async findByDateRange(userId: string, startDate: Date, endDate: Date): Promise<Transaction[]> {
     const result = await this.pool.query(
-      'SELECT * FROM transactions WHERE user_id = $1 AND occurred_at >= $2 AND occurred_at <= $3 ORDER BY occurred_at DESC',
+      'SELECT * FROM transactions WHERE user_id = $1 AND occurred_at >= $2 AND occurred_at < $3 ORDER BY occurred_at DESC',
       [userId, startDate, endDate]
     );
     return result.rows.map(mapRowToTransaction);
