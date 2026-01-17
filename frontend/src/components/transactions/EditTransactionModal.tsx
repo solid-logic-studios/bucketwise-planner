@@ -15,21 +15,40 @@ interface EditTransactionModalProps {
 }
 
 export function EditTransactionModal({ opened, onClose, form, submitting, submitError, suggestedTags = [], onSubmit }: EditTransactionModalProps) {
+  const isTransfer = form.values.kind === 'transfer';
+
   return (
     <Modal opened={opened} onClose={onClose} title="Edit Transaction" centered>
       <form onSubmit={form.onSubmit(onSubmit)}>
         <Stack gap="md">
           <div>
-            <Tooltip label="Select the bucket this transaction belongs to" withArrow position="right">
+            <Tooltip label={isTransfer ? "Select the source bucket (transfers from)" : "Select the bucket this transaction belongs to"} withArrow position="right">
               <Select
-                label="Bucket"
+                label={isTransfer ? "Source Bucket" : "Bucket"}
                 placeholder="Select bucket"
                 required
-                {...form.getInputProps('bucket')}
+                {...form.getInputProps('sourceBucket')}
                 data={bucketOptions.map((bucket) => ({ value: bucket, label: bucket }))}
               />
             </Tooltip>
           </div>
+
+          {isTransfer && (
+            <div>
+              <Tooltip label="Select the bucket to transfer money into. Must be different from the source bucket." withArrow position="right">
+                <Select
+                  label="Destination Bucket"
+                  placeholder="Select destination"
+                  required
+                  data={bucketOptions
+                    .filter((bucket) => bucket !== form.values.sourceBucket)
+                    .map((bucket) => ({ value: bucket, label: bucket }))}
+                  {...form.getInputProps('destinationBucket')}
+                  error={form.errors.destinationBucket}
+                />
+              </Tooltip>
+            </div>
+          )}
 
           <div>
             <Tooltip label="Select the transaction type" withArrow position="right">
@@ -44,7 +63,7 @@ export function EditTransactionModal({ opened, onClose, form, submitting, submit
           </div>
 
           <Tooltip label="Clear description of what this transaction is for" withArrow position="right">
-            <TextInput label="Description" placeholder="e.g., Groceries at Coles" required {...form.getInputProps('description')} />
+            <TextInput label="Description" placeholder={isTransfer ? "e.g., Reallocate to debt" : "e.g., Groceries at Coles"} required {...form.getInputProps('description')} />
           </Tooltip>
 
           <Tooltip label="Transaction amount in Australian Dollars" withArrow position="right">

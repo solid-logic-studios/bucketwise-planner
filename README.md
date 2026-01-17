@@ -3,7 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Tests](https://img.shields.io/badge/tests-54%20passing-brightgreen)](https://github.com/PaulAtkins88/bucketwise-planner)
 [![Security](https://img.shields.io/badge/security-SECURITY.md-blue)](SECURITY.md)
-[![Release](https://img.shields.io/badge/release-v0.1.0-blue)](https://github.com/PaulAtkins88/bucketwise-planner/releases)
+[![Release](https://img.shields.io/badge/release-v0.3.0-blue)](https://github.com/PaulAtkins88/bucketwise-planner/releases)
 
 Multi-user budgeting app implementing Scott Pape's Barefoot Investor methodology. Fortnightly budgeting with bucket allocations (60/10/10/20), automated debt snowball payoff, transaction tracking, and optional AI financial advisor.
 

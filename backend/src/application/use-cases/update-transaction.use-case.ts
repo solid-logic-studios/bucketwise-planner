@@ -1,3 +1,4 @@
+import type { BarefootBucket } from '../../domain/model/barefoot-bucket.js';
 import { Money } from '../../domain/model/money.js';
 import { Transaction } from '../../domain/model/transaction.entity.js';
 import type { TransactionRepository } from '../../domain/repositories/transaction.repository.interface.js';
@@ -10,7 +11,8 @@ import { UseCase } from './base.use-case.js';
 interface UpdateTransactionRequest {
   userId: string;
   id: string;
-  bucket: string;
+  sourceBucket: BarefootBucket;
+  destinationBucket: BarefootBucket | null | undefined;
   kind: 'income' | 'expense' | 'transfer';
   description: string;
   amountCents: number;
@@ -20,6 +22,8 @@ interface UpdateTransactionRequest {
 
 /**
  * UpdateTransactionUseCase: Update an existing transaction.
+ * Validates transfer constraints: source !== destination.
+ * Prevents changing kind to/from transfer without proper bucket configuration.
  * 
  * @extends BaseUseCase
  */
@@ -38,10 +42,16 @@ export class UpdateTransactionUseCase extends UseCase<
       throw new Error(`Transaction ${request.id} not found`);
     }
 
-    // Create updated transaction
+    // Normalize destination bucket (null for non-transfers)
+    const destinationBucket = request.kind === 'transfer' 
+      ? (request.destinationBucket || null) 
+      : null;
+
+    // Create updated transaction with validation via constructor
     const updatedTransaction = new Transaction(
       request.id,
-      request.bucket as any,
+      request.sourceBucket,
+      destinationBucket,
       request.kind,
       new Money(request.amountCents),
       request.description,
@@ -55,7 +65,9 @@ export class UpdateTransactionUseCase extends UseCase<
     // Return updated transaction as DTO
     return {
       id: updatedTransaction.id,
-      bucket: updatedTransaction.bucket,
+      bucket: updatedTransaction.sourceBucket,
+      sourceBucket: updatedTransaction.sourceBucket,
+      destinationBucket: updatedTransaction.destinationBucket,
       kind: updatedTransaction.kind,
       description: updatedTransaction.description,
       amountCents: updatedTransaction.amount.cents,
@@ -64,3 +76,4 @@ export class UpdateTransactionUseCase extends UseCase<
     };
   }
 }
+

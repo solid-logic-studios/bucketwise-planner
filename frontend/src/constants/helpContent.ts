@@ -4,7 +4,7 @@ export const helpContent: Record<HelpPageKey, HelpPageContent> = {
   transactions: {
     key: 'transactions',
     title: 'Transactions Help',
-    description: 'Record spending, income, and debt payments for the selected fortnight.',
+    description: 'Record spending, income, debt payments, and transfers between buckets for the selected fortnight.',
     sections: [
       {
         title: 'Snowball Payment',
@@ -20,7 +20,11 @@ export const helpContent: Record<HelpPageKey, HelpPageContent> = {
       },
       {
         title: 'Add Transaction Form',
-        body: 'Bucket selects the Barefoot bucket. Transaction Type chooses income/expense/transfer. Apply to a debt tags it as a debt-payment and reduces the selected debt. Tags are optional labels for filtering (e.g., groceries, medical).',
+        body: 'Select a transaction type: Income (money in), Expense (money out), or Transfer (reallocate between buckets). For income/expense, choose a bucket. For transfers, select both source and destination buckets (must be different). Tags are optional labels for filtering (e.g., groceries, medical).',
+      },
+      {
+        title: 'Transfers',
+        body: 'A transfer moves money between buckets within the current fortnight without affecting income or expense totals. Use transfers to reallocate available funds—e.g., if you\'ve spent less in Splurge, move the surplus to Fire Extinguisher to accelerate debt payoff. Transfers show with both buckets in the transaction list (e.g., "Splurge → Fire Extinguisher").',
       },
       {
         title: 'Filters & Grouping',
@@ -29,10 +33,11 @@ export const helpContent: Record<HelpPageKey, HelpPageContent> = {
     ],
     quickLinks: [
       { label: 'Record debt payment', note: 'Use Snowball/Minimum sections or Add Transaction with debt toggle' },
+      { label: 'Transfer between buckets', note: 'Add Transaction > Type: Transfer > Select source and destination buckets' },
       { label: 'View planned payments', note: 'Snowball and Minimum Payments in This Fortnight\'s Plan' },
       { label: 'Filter transactions', note: 'Search box and bucket dropdown in Actual Transactions' },
     ],
-    tags: ['transactions', 'debt payments', 'income', 'expense', 'fire extinguisher'],
+    tags: ['transactions', 'debt payments', 'income', 'expense', 'transfer', 'buckets', 'fire extinguisher'],
   },
   dashboard: {
     key: 'dashboard',

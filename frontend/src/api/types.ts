@@ -11,7 +11,9 @@ export interface ApiResponse<T> {
 
 export interface TransactionDTO {
   id: string;
-  bucket: string;
+  bucket: string; // Backward compatibility: same as sourceBucket
+  sourceBucket: string;
+  destinationBucket: string | null;
   kind: string;
   amountCents: number;
   description: string;

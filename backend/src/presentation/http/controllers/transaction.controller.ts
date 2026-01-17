@@ -1,5 +1,7 @@
 import type { Request, Response } from 'express';
+import type { z } from 'zod';
 import { recordTransactionSchema } from '../../../application/dtos/schemas/record-transaction.schema.js';
+import { updateTransactionSchema } from '../../../application/dtos/schemas/update-transaction.schema.js';
 import type { TransactionDTO } from '../../../application/dtos/transaction.dto.js';
 import { DeleteTransactionUseCase } from '../../../application/use-cases/delete-transaction.use-case.js';
 import { RecordTransactionUseCase } from '../../../application/use-cases/record-transaction.use-case.js';
@@ -38,22 +40,23 @@ export class TransactionController extends BaseController {
 
   /**
    * POST /transactions
-   * Record a new income or expense transaction.
+   * Record a new income, expense, or transfer transaction.
    * 
    * @param req - Express request with validated body
    * @param res - Express response object
    * @throws ValidationError if input is invalid
-   * @throws DomainError if business rule is violated
+   * @throws DomainError if business rule is violated (e.g., transfer source === destination)
    */
   async recordTransaction(req: Request, res: Response): Promise<void> {
-    // Validate input using Zod schema
+    // Validate input using Zod schema (validated.sourceBucket is already BarefootBucket type)
     const userId = (req as any).user.id;
     const validated = recordTransactionSchema.parse(req.body);
 
-    // Execute use case
+    // Execute use case with validated types
     const result = await this.recordTransactionUseCase.execute({
       userId,
-      bucket: validated.bucket,
+      sourceBucket: validated.sourceBucket,
+      destinationBucket: validated.destinationBucket || null,
       kind: validated.kind,
       description: validated.description,
       amountCents: validated.amountCents,
@@ -65,7 +68,9 @@ export class TransactionController extends BaseController {
     // Format and send response
     const response: TransactionDTO = {
       id: result.transactionId,
-      bucket: validated.bucket,
+      bucket: validated.sourceBucket,
+      sourceBucket: validated.sourceBucket,
+      destinationBucket: validated.destinationBucket || null,
       kind: validated.kind,
       description: validated.description,
       amountCents: validated.amountCents,
@@ -78,7 +83,7 @@ export class TransactionController extends BaseController {
 
   /**
    * PUT /transactions/:id
-   * Update an existing transaction.
+   * Update an existing transaction (income, expense, or transfer).
    * 
    * @param req - Express request with transaction ID in params and updated data in body
    * @param res - Express response object
@@ -86,24 +91,16 @@ export class TransactionController extends BaseController {
    * @throws DomainError if transaction not found or business rule violated
    */
   async updateTransaction(req: Request, res: Response): Promise<void> {
-    // Body is already validated by route handler (Zod parsed it)
+    // Body is already validated by route handler (Zod parsed it with proper BarefootBucket types)
     const userId = (req as any).user.id;
-    const validated = req.body as {
-      id: string;
-      bucket: string;
-      kind: 'income' | 'expense' | 'transfer';
-      description: string;
-      amountCents: number;
-      occurredAt: Date | string;
-      tags?: string[];
-    };
+    const validated = req.body as z.infer<typeof updateTransactionSchema>;
 
-    // Execute use case
-
+    // Execute use case with validated types
     const result = await this.updateTransactionUseCase.execute({
       userId,
       id: validated.id,
-      bucket: validated.bucket,
+      sourceBucket: validated.sourceBucket,
+      destinationBucket: validated.destinationBucket || null,
       kind: validated.kind,
       description: validated.description,
       amountCents: validated.amountCents,

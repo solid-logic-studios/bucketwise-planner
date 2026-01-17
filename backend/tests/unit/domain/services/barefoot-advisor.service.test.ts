@@ -305,6 +305,8 @@ describe('BarefootAdvisorService', () => {
           {
             id: 'tx-1',
             bucket: 'Daily Expenses',
+            sourceBucket: 'Daily Expenses',
+            destinationBucket: null,
             kind: 'expense',
             description: 'Woolworths',
             amountCents: 8540,
@@ -314,6 +316,8 @@ describe('BarefootAdvisorService', () => {
           {
             id: 'tx-2',
             bucket: 'income',
+            sourceBucket: 'income',
+            destinationBucket: null,
             kind: 'income',
             description: 'Salary',
             amountCents: 200000,
@@ -413,6 +417,8 @@ describe('BarefootAdvisorService', () => {
       const manyTransactions = Array.from({ length: 100 }, (_, i) => ({
         id: `tx-${i}`,
         bucket: 'Splurge',
+        sourceBucket: 'Splurge',
+        destinationBucket: null,
         kind: 'expense' as const,
         description: `Transaction ${i}`,
         amountCents: 1000,

@@ -49,9 +49,16 @@ export async function ensureSchema(pool: Pool): Promise<void> {
       description TEXT NOT NULL,
       occurred_at TIMESTAMPTZ NOT NULL,
       tags TEXT[] NOT NULL DEFAULT '{}',
+      source_bucket TEXT,
+      destination_bucket TEXT,
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
       updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
+
+    -- Indexes for transaction queries and transfer support
+    CREATE INDEX IF NOT EXISTS idx_transactions_source_bucket ON transactions(source_bucket);
+    CREATE INDEX IF NOT EXISTS idx_transactions_destination_bucket ON transactions(destination_bucket);
+    CREATE INDEX IF NOT EXISTS idx_transactions_source_dest ON transactions(source_bucket, destination_bucket);
 
     CREATE TABLE IF NOT EXISTS fortnight_snapshots (
       id UUID PRIMARY KEY,

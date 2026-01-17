@@ -31,6 +31,7 @@ import { GeminiAiProvider } from '../../infrastructure/ai/gemini-ai-provider.js'
 import { BcryptPasswordService } from '../../infrastructure/auth/BcryptPasswordService.js';
 import { JsonWebTokenProvider } from '../../infrastructure/auth/JsonWebTokenProvider.js';
 import { TokenBlacklist } from '../../infrastructure/auth/TokenBlacklist.js';
+import { runMigrations } from '../../infrastructure/database/migrations.js';
 import { createPgPool, ensureSchema } from '../../infrastructure/database/pg.js';
 import { MemoryBudgetProfileRepository } from '../../infrastructure/persistence/memory/memory-budget-profile.repository.js';
 import { MemoryDebtRepository } from '../../infrastructure/persistence/memory/memory-debt.repository.js';
@@ -78,6 +79,7 @@ export async function createApp(): Promise<Application> {
 
   if (pool) {
     await ensureSchema(pool);
+    await runMigrations(pool);
   }
 
   // Log storage strategy for visibility

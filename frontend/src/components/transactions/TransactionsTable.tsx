@@ -194,44 +194,55 @@ export function TransactionsTable({
                         </Table.Tr>
                       </Table.Thead>
                       <Table.Tbody>
-                        {group.transactions.map((tx) => (
-                          <Table.Tr key={tx.id} style={isHistoricalFortnight ? { opacity: 0.8 } : {}}>
-                            <Table.Td>{formatDateTime(tx.occurredAt)}</Table.Td>
-                            <Table.Td>{tx.description}</Table.Td>
-                            <Table.Td>
-                              <BucketBadge bucket={tx.bucket} />
-                            </Table.Td>
-                            <Table.Td>
-                              <TransactionKindBadge kind={tx.kind} />
-                            </Table.Td>
-                            <Table.Td>{formatCurrency(tx.amountCents)}</Table.Td>
-                            <Table.Td>
-                              {tx.tags && tx.tags.length > 0 && (
+                        {group.transactions.map((tx) => {
+                          const isTransfer = tx.kind === 'transfer' && tx.sourceBucket && tx.destinationBucket;
+                          return (
+                            <Table.Tr key={tx.id} style={isHistoricalFortnight ? { opacity: 0.8 } : {}}>
+                              <Table.Td>{formatDateTime(tx.occurredAt)}</Table.Td>
+                              <Table.Td>{tx.description}</Table.Td>
+                              <Table.Td>
+                                {isTransfer ? (
+                                  <Group gap="xs">
+                                    <BucketBadge bucket={tx.sourceBucket} />
+                                    <Text size="xs" c="dimmed">→</Text>
+                                    <BucketBadge bucket={tx.destinationBucket!} />
+                                  </Group>
+                                ) : (
+                                  <BucketBadge bucket={tx.sourceBucket} />
+                                )}
+                              </Table.Td>
+                              <Table.Td>
+                                <TransactionKindBadge kind={tx.kind} />
+                              </Table.Td>
+                              <Table.Td>{formatCurrency(tx.amountCents)}</Table.Td>
+                              <Table.Td>
+                                {tx.tags && tx.tags.length > 0 && (
+                                  <Group gap={4}>
+                                    {tx.tags.map((tag) => (
+                                      <Badge key={tag} size="xs" variant="dot">
+                                        {tag}
+                                      </Badge>
+                                    ))}
+                                  </Group>
+                                )}
+                              </Table.Td>
+                              <Table.Td>
                                 <Group gap={4}>
-                                  {tx.tags.map((tag) => (
-                                    <Badge key={tag} size="xs" variant="dot">
-                                      {tag}
-                                    </Badge>
-                                  ))}
+                                  <Tooltip label="Edit transaction" withArrow position="left">
+                                    <ActionIcon size="sm" color="blue" variant="light" onClick={() => onEdit(tx)}>
+                                      <IconEdit size={16} />
+                                    </ActionIcon>
+                                  </Tooltip>
+                                  <Tooltip label="Delete transaction" withArrow position="left">
+                                    <ActionIcon size="sm" color="red" variant="light" onClick={() => onDelete(tx)}>
+                                      <IconTrash size={16} />
+                                    </ActionIcon>
+                                  </Tooltip>
                                 </Group>
-                              )}
-                            </Table.Td>
-                            <Table.Td>
-                              <Group gap={4}>
-                                <Tooltip label="Edit transaction" withArrow position="left">
-                                  <ActionIcon size="sm" color="blue" variant="light" onClick={() => onEdit(tx)}>
-                                    <IconEdit size={16} />
-                                  </ActionIcon>
-                                </Tooltip>
-                                <Tooltip label="Delete transaction" withArrow position="left">
-                                  <ActionIcon size="sm" color="red" variant="light" onClick={() => onDelete(tx)}>
-                                    <IconTrash size={16} />
-                                  </ActionIcon>
-                                </Tooltip>
-                              </Group>
-                            </Table.Td>
-                          </Table.Tr>
-                        ))}
+                              </Table.Td>
+                            </Table.Tr>
+                          );
+                        })}
                       </Table.Tbody>
                     </Table>
                   </Stack>

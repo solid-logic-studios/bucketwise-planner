@@ -75,8 +75,10 @@ export class ListTransactionsUseCase extends UseCase<
       transactions = transactions.filter((tx) => tx.kind === request.kind);
     }
     if (request.bucket && (request.startDate || request.fortnightId)) {
-      // If date/fortnight filter was used, still filter by bucket if provided
-      transactions = transactions.filter((tx) => tx.bucket === request.bucket);
+      // Filter by bucket: match source bucket OR destination bucket
+      transactions = transactions.filter((tx) => 
+        tx.sourceBucket === request.bucket || tx.destinationBucket === request.bucket
+      );
     }
 
     // Store total before pagination
@@ -90,7 +92,9 @@ export class ListTransactionsUseCase extends UseCase<
     // Map domain entities to DTOs
     const transactionDTOs: TransactionDTO[] = paginatedTransactions.map((tx: Transaction) => ({
       id: tx.id,
-      bucket: tx.bucket,
+      bucket: tx.sourceBucket,
+      sourceBucket: tx.sourceBucket,
+      destinationBucket: tx.destinationBucket,
       kind: tx.kind,
       description: tx.description,
       amountCents: tx.amount.cents,

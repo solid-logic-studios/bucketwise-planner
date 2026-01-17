@@ -28,7 +28,9 @@ export interface TransactionState {
 }
 
 export interface TransactionFormValues {
-  bucket: BucketType;
+  bucket: BucketType; // Backward compatibility: same as sourceBucket
+  sourceBucket: BucketType;
+  destinationBucket: BucketType | null | undefined;
   kind: TransactionKind;
   description: string;
   amountDollars: number;

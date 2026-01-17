@@ -26,4 +26,23 @@ export class MemoryTransactionRepository
       .filter((t) => t.occurredAt >= startDate && t.occurredAt <= endDate)
       .sort((a, b) => b.occurredAt.getTime() - a.occurredAt.getTime());
   }
+
+  async findTransfersBySourceBucket(userId: string, bucket: string): Promise<Transaction[]> {
+    const all = await this.getAll(userId);
+    return all.filter((t) => t.isTransfer() && t.sourceBucket === bucket);
+  }
+
+  async findTransfersByDestinationBucket(userId: string, bucket: string): Promise<Transaction[]> {
+    const all = await this.getAll(userId);
+    return all.filter((t) => t.isTransfer() && t.destinationBucket === bucket);
+  }
+
+  async findTransfersBetween(userId: string, bucketA: string, bucketB: string): Promise<Transaction[]> {
+    const all = await this.getAll(userId);
+    return all.filter((t) => 
+      t.isTransfer() && 
+      ((t.sourceBucket === bucketA && t.destinationBucket === bucketB) ||
+       (t.sourceBucket === bucketB && t.destinationBucket === bucketA))
+    );
+  }
 }

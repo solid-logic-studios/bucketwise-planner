@@ -80,12 +80,23 @@ export class FortnightSnapshot extends BaseEntity {
 
     /**
      * Calculate total spending in a specific bucket.
-     * @param bucket - The bucket to sum spending for
-     * @returns Money instance with total spending in that bucket
+     * Includes expenses from bucket and transfers out, minus transfers in.
+     * @param bucket - The bucket to calculate net spending for
+     * @returns Money instance with net spending in that bucket
      */
     bucketSpend(bucket: BarefootBucket): Money {
-        return this.transactions
-            .filter(tx => tx.bucket === bucket && tx.kind === 'expense')
+        const expenses = this.transactions
+            .filter(tx => tx.sourceBucket === bucket && tx.kind === 'expense')
             .reduce((sum, tx) => sum.add(tx.amount), new Money(0));
+        
+        const transfersOut = this.transactions
+            .filter(tx => tx.sourceBucket === bucket && tx.kind === 'transfer')
+            .reduce((sum, tx) => sum.add(tx.amount), new Money(0));
+        
+        const transfersIn = this.transactions
+            .filter(tx => tx.destinationBucket === bucket && tx.kind === 'transfer')
+            .reduce((sum, tx) => sum.add(tx.amount), new Money(0));
+        
+        return expenses.add(transfersOut).subtract(transfersIn);
     }
 }

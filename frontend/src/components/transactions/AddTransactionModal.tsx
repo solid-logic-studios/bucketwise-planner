@@ -28,20 +28,39 @@ export function AddTransactionModal({
   suggestedTags = [],
   onSubmit,
 }: AddTransactionModalProps) {
+  const isTransfer = form.values.kind === 'transfer';
+
   return (
     <Modal opened={opened && !isHistoricalFortnight} onClose={onClose} title="Add Transaction" size="md">
       <form onSubmit={form.onSubmit(onSubmit)}>
         <Stack gap="md">
           <div>
-            <Tooltip label="Choose which Barefoot bucket this transaction belongs to (Daily Expenses for everyday spending, Fire Extinguisher for debt payments, etc.)" withArrow position="right">
+            <Tooltip label="Choose which Barefoot bucket this transaction belongs to (Daily Expenses for everyday spending, Fire Extinguisher for debt payments, etc.). For transfers, this is the source bucket." withArrow position="right">
               <Select
-                label="Bucket"
+                label={isTransfer ? "Source Bucket" : "Bucket"}
                 required
-                {...form.getInputProps('bucket')}
+                {...form.getInputProps('sourceBucket')}
                 data={bucketOptions.map((bucket) => ({ value: bucket, label: bucket }))}
               />
             </Tooltip>
           </div>
+
+          {isTransfer && (
+            <div>
+              <Tooltip label="Select the bucket to transfer money into. Must be different from the source bucket." withArrow position="right">
+                <Select
+                  label="Destination Bucket"
+                  placeholder="Select destination"
+                  required
+                  data={bucketOptions
+                    .filter((bucket) => bucket !== form.values.sourceBucket)
+                    .map((bucket) => ({ value: bucket, label: bucket }))}
+                  {...form.getInputProps('destinationBucket')}
+                  error={form.errors.destinationBucket}
+                />
+              </Tooltip>
+            </div>
+          )}
 
           <div>
             <Tooltip label="Select the transaction type - Income adds money, Expense removes it, Transfer moves between buckets" withArrow position="right">
@@ -55,29 +74,33 @@ export function AddTransactionModal({
             </Tooltip>
           </div>
 
-          <Tooltip label="Check this to apply the payment toward a specific debt, which updates the payoff timeline" withArrow position="right">
-            <Checkbox
-              label="Apply to a debt (updates payoff plan)"
-              checked={form.values.debtPayment}
-              onChange={(e) => form.setFieldValue('debtPayment', e.currentTarget.checked)}
-            />
-          </Tooltip>
+          {!isTransfer && (
+            <>
+              <Tooltip label="Check this to apply the payment toward a specific debt, which updates the payoff timeline" withArrow position="right">
+                <Checkbox
+                  label="Apply to a debt (updates payoff plan)"
+                  checked={form.values.debtPayment}
+                  onChange={(e) => form.setFieldValue('debtPayment', e.currentTarget.checked)}
+                />
+              </Tooltip>
 
-          <div>
-            <Tooltip label="Select which debt this payment applies to - the amount will reduce the selected debt's balance" withArrow position="right">
-              <Select
-                label="Debt"
-                placeholder="Select debt"
-                data={debts.map((debt) => ({ value: debt.id, label: debt.name }))}
-                disabled={!form.values.debtPayment}
-                required={form.values.debtPayment}
-                {...form.getInputProps('debtId')}
-              />
-            </Tooltip>
-          </div>
+              <div>
+                <Tooltip label="Select which debt this payment applies to - the amount will reduce the selected debt's balance" withArrow position="right">
+                  <Select
+                    label="Debt"
+                    placeholder="Select debt"
+                    data={debts.map((debt) => ({ value: debt.id, label: debt.name }))}
+                    disabled={!form.values.debtPayment}
+                    required={form.values.debtPayment}
+                    {...form.getInputProps('debtId')}
+                  />
+                </Tooltip>
+              </div>
+            </>
+          )}
 
           <Tooltip label="Clear description of what this transaction is for - used for filtering and reconciliation" withArrow position="right">
-            <TextInput label="Description" placeholder="e.g., Groceries at Coles" required {...form.getInputProps('description')} />
+            <TextInput label="Description" placeholder={isTransfer ? "e.g., Allocate to debt payoff" : "e.g., Groceries at Coles"} required {...form.getInputProps('description')} />
           </Tooltip>
 
           <Tooltip label="Transaction amount in Australian Dollars - will be converted to cents for storage" withArrow position="right">

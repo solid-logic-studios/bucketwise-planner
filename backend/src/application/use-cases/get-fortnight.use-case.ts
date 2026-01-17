@@ -77,9 +77,24 @@ export class GetFortnightUseCase extends UseCase<GetFortnightRequest, FortnightD
     // Compute per-bucket breakdowns
     const bucketBreakdowns: BucketBreakdown[] = snapshot.allocations.map(allocation => {
       const allocatedCents = Math.round(totalIncome.cents * allocation.percentage);
-      const spent = periodTransactions
-        .filter(tx => tx.bucket === allocation.bucket && tx.kind === 'expense')
+      
+      // Calculate spent: expenses from this bucket + transfers OUT of this bucket
+      const expensesFromBucket = periodTransactions
+        .filter(tx => tx.sourceBucket === allocation.bucket && tx.kind === 'expense')
         .reduce((sum, tx) => sum.add(tx.amount), new Money(0));
+      
+      const transfersOut = periodTransactions
+        .filter(tx => tx.sourceBucket === allocation.bucket && tx.kind === 'transfer')
+        .reduce((sum, tx) => sum.add(tx.amount), new Money(0));
+      
+      // Calculate transfers IN to this bucket (adds to available balance)
+      const transfersIn = periodTransactions
+        .filter(tx => tx.destinationBucket === allocation.bucket && tx.kind === 'transfer')
+        .reduce((sum, tx) => sum.add(tx.amount), new Money(0));
+      
+      // Net spent = expenses + transfers out - transfers in
+      const spent = expensesFromBucket.add(transfersOut).subtract(transfersIn);
+      
       const remainingCents = allocatedCents - spent.cents;
 
       return {

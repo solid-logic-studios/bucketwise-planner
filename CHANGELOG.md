@@ -5,6 +5,53 @@ All notable changes to Bucketwise Planner will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-01-18
+
+### ⚠️ BREAKING CHANGES
+
+**Database Migration Required**: If upgrading from v0.2.x, you MUST run the migration script.
+
+- Transfer feature: Transactions now support moving money between buckets
+- Database schema: Added `source_bucket` and `destination_bucket` columns to transactions table
+- API changes: `bucket` field replaced with `sourceBucket`/`destinationBucket` (backward compatible fallback removed)
+
+### Added
+- 🎉 **Transfer Between Buckets** - Move money between your Barefoot buckets
+  - Transfer from any bucket to any other bucket (e.g., Smile → Daily Expenses)
+  - Proper bucket balance calculations (source decreases, destination increases)
+  - Transfer transactions appear in both source and destination bucket views
+  - Frontend UI with dedicated transfer form and validation
+
+### Changed
+- Transaction API now uses `sourceBucket` and `destinationBucket` fields consistently
+- Bucket spending calculations account for transfers (in/out)
+- Transaction filtering matches both source and destination buckets
+
+### Fixed
+- Bucket balances now update correctly for transfer transactions
+- All legacy `tx.bucket` references replaced with proper source/destination logic
+
+### Migration Guide for Existing Users
+
+**IMPORTANT**: Back up your database before upgrading!
+
+```bash
+# 1. Backup database
+pg_dump -U budgetwise budgetwise > backup_before_0.3.0.sql
+
+# 2. Pull latest code
+git pull origin main
+
+# 3. Restart services (migrations run automatically)
+docker compose down
+docker compose up -d
+
+# OR for manual setup:
+cd backend
+pnpm install
+pnpm dev  # Migrations run on startup
+```
+
 ## [0.2.0] - 2026-01-15
 
 ### Added
@@ -94,5 +141,6 @@ Learn more: https://www.barefootinvestor.com/
 
 ---
 
+[0.3.0]: https://github.com/PaulAtkins88/bucketwise-planner/releases/tag/v0.3.0
 [0.2.0]: https://github.com/PaulAtkins88/bucketwise-planner/releases/tag/v0.2.0
 [0.1.0]: https://github.com/PaulAtkins88/bucketwise-planner/releases/tag/v0.1.0

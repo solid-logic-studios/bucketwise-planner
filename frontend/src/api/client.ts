@@ -199,7 +199,8 @@ export const api = {
     ),
 
   recordTransaction: (input: {
-    bucket: string;
+    sourceBucket: string;
+    destinationBucket?: string | null;
     kind: string;
     description: string;
     amountCents: number;
@@ -211,7 +212,8 @@ export const api = {
   updateTransaction: (
     id: string,
     input: {
-      bucket: string;
+      sourceBucket: string;
+      destinationBucket?: string | null;
       kind: string;
       description: string;
       amountCents: number;

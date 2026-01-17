@@ -240,7 +240,7 @@ export function DebtsView() {
 
     try {
       await api.recordTransaction({
-        bucket: recordForm.values.bucket,
+        sourceBucket: recordForm.values.bucket,
         kind: 'expense',
         description: recordForm.values.description,
         amountCents: Math.round(recordForm.values.amountDollars * 100),

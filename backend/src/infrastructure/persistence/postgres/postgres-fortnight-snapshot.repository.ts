@@ -15,7 +15,8 @@ interface SerializedAllocation {
 
 interface SerializedTransaction {
   id: string;
-  bucket: BarefootBucket;
+  sourceBucket: BarefootBucket;
+  destinationBucket: BarefootBucket | null | undefined;
   kind: TransactionKind;
   amountCents: number;
   description: string;
@@ -34,7 +35,8 @@ function serializeAllocations(allocations: Allocation[]): SerializedAllocation[]
 function serializeTransactions(transactions: Transaction[]): SerializedTransaction[] {
   return transactions.map((t) => ({
     id: t.id,
-    bucket: t.bucket,
+    sourceBucket: t.sourceBucket,
+    destinationBucket: t.destinationBucket || undefined,
     kind: t.kind,
     amountCents: t.amount.cents,
     description: t.description,
@@ -52,7 +54,8 @@ function deserializeTransactions(rows: SerializedTransaction[]): Transaction[] {
     (row) =>
       new Transaction(
         row.id,
-        row.bucket,
+        row.sourceBucket,
+        row.destinationBucket || null,
         row.kind,
         new Money(row.amountCents),
         row.description,

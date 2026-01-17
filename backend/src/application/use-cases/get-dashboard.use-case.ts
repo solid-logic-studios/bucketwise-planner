@@ -93,10 +93,20 @@ export class GetDashboardUseCase extends UseCase<
           bucketBreakdowns: snapshot.allocations.map(allocation => {
             const allocatedCents = Math.round(totalIncome.cents * allocation.percentage);
             
-            // Calculate spent amount by bucket from live transactions
-            const spent = periodTransactions
-              .filter(tx => tx.bucket === allocation.bucket && tx.kind === 'expense')
+            // Calculate spent: expenses + transfers out - transfers in
+            const expensesFromBucket = periodTransactions
+              .filter(tx => tx.sourceBucket === allocation.bucket && tx.kind === 'expense')
               .reduce((sum, tx) => sum.add(tx.amount), new Money(0));
+            
+            const transfersOut = periodTransactions
+              .filter(tx => tx.sourceBucket === allocation.bucket && tx.kind === 'transfer')
+              .reduce((sum, tx) => sum.add(tx.amount), new Money(0));
+            
+            const transfersIn = periodTransactions
+              .filter(tx => tx.destinationBucket === allocation.bucket && tx.kind === 'transfer')
+              .reduce((sum, tx) => sum.add(tx.amount), new Money(0));
+            
+            const spent = expensesFromBucket.add(transfersOut).subtract(transfersIn);
             
             const remainingCents = allocatedCents - spent.cents;
 

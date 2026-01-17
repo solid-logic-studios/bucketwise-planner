@@ -14,8 +14,10 @@ import { UseCase } from './base.use-case.js';
 interface RecordTransactionInput {
   /** User ID */
   userId: string;
-  /** The bucket this transaction belongs to */
-  bucket: BarefootBucket;
+  /** Source bucket: the bucket this transaction originates from */
+  sourceBucket: BarefootBucket;
+  /** Destination bucket: only required for transfers, must differ from sourceBucket */
+  destinationBucket: BarefootBucket | null | undefined;
   /** Type of transaction */
   kind: 'income' | 'expense' | 'transfer';
   /** Description of what the transaction is for */
@@ -26,7 +28,7 @@ interface RecordTransactionInput {
   occurredAt: Date;
   /** Optional tags for categorization */
   tags: string[] | undefined;
-  /** Optional debt to apply payment against */
+  /** Optional debt to apply payment against (not allowed for transfers) */
   debtId: string | undefined;
 }
 
@@ -41,21 +43,35 @@ interface RecordTransactionOutput {
 }
 
 /**
- * RecordTransactionUseCase: Use case for recording income and expense transactions.
+ * RecordTransactionUseCase: Use case for recording income, expense, and transfer transactions.
  * Validates input, creates a Transaction entity, and persists it.
+ * For transfers, validates that source and destination buckets are different.
+ * For debt payments, applies the transaction amount to reduce debt balance.
  * Part of the Barefoot Investor budget tracking system.
  * 
  * @extends {UseCase<RecordTransactionInput, RecordTransactionOutput>}
  * @example
  * ```typescript
+ * // Regular expense
  * const useCase = new RecordTransactionUseCase(txRepository);
  * const result = await useCase.execute({
- *   bucket: 'Daily Expenses',
+ *   sourceBucket: 'Daily Expenses',
+ *   destinationBucket: null,
  *   kind: 'expense',
  *   description: 'Groceries',
  *   amountCents: 5000,
  *   occurredAt: new Date(),
  *   tags: ['food']
+ * });
+ * 
+ * // Transfer between buckets
+ * const transfer = await useCase.execute({
+ *   sourceBucket: 'Splurge',
+ *   destinationBucket: 'Fire Extinguisher',
+ *   kind: 'transfer',
+ *   description: 'Allocate to debt',
+ *   amountCents: 10000,
+ *   occurredAt: new Date(),
  * });
  * ```
  */
@@ -80,16 +96,25 @@ export class RecordTransactionUseCase extends UseCase<
    * Execute the use case: create and record a transaction.
    * @param input - The transaction data
    * @returns Promise with transaction ID and success status
-   * @throws ValidationError if input violates domain rules
+   * @throws ValidationError if input violates domain rules (e.g., transfer source === destination)
    */
   async execute(input: RecordTransactionInput): Promise<RecordTransactionOutput> {
-    // Generate ID (in real app, use UUID or DB sequence)
+    // Generate ID
     const id = crypto.randomUUID();
 
+    // Normalize destination bucket (null for non-transfers)
+    const destinationBucket = input.kind === 'transfer' 
+      ? (input.destinationBucket || null) 
+      : null;
+
     const money = new Money(input.amountCents);
+    
+    // Create transaction entity with source and destination buckets.
+    // Constructor validates transfer constraints (source !== destination).
     const transaction = new Transaction(
       id,
-      input.bucket,
+      input.sourceBucket,
+      destinationBucket,
       input.kind,
       money,
       input.description,

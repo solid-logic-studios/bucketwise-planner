@@ -287,9 +287,12 @@ lines.push(`Fire Extinguisher Allocation: ${profile.defaultFireExtinguisherBps /
           
           for (const tx of displayTransactions) {
             const amountDollars = (tx.amountCents / 100).toFixed(2);
-            const sign = tx.kind === 'income' ? '+' : '-';
+            const sign = tx.kind === 'income' ? '+' : tx.kind === 'transfer' ? '→' : '-';
             const date = tx.occurredAt.split('T')[0]; // Extract YYYY-MM-DD
-            lines.push(`${date} | ${tx.description} | ${sign}$${amountDollars} | ${tx.bucket}`);
+            const bucketInfo = tx.kind === 'transfer' 
+              ? `${tx.sourceBucket} → ${tx.destinationBucket}`
+              : tx.sourceBucket;
+            lines.push(`${date} | ${tx.description} | ${sign}$${amountDollars} | ${bucketInfo}`);
             totalCents += tx.kind === 'income' ? tx.amountCents : -tx.amountCents;
           }
           

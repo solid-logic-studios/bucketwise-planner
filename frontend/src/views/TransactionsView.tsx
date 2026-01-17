@@ -24,6 +24,7 @@ import {
   type BucketType,
   type TransactionFilters,
   type TransactionFormValues,
+  type TransactionKind,
 } from '../hooks/transactions/types.js';
 import { useDebtPayments } from '../hooks/transactions/useDebtPayments.js';
 import { useFortnightDetail } from '../hooks/transactions/useFortnightDetail.js';
@@ -94,6 +95,8 @@ export function TransactionsView() {
   const form = useForm<TransactionFormValues>({
     initialValues: {
       bucket: bucketOptions[0],
+      sourceBucket: bucketOptions[0],
+      destinationBucket: null,
       kind: 'expense',
       description: '',
       amountDollars: 0,
@@ -105,6 +108,13 @@ export function TransactionsView() {
     validate: {
       description: (value) => (!value.trim() ? 'Description is required' : null),
       amountDollars: (value) => (value <= 0 ? 'Amount must be greater than 0' : null),
+      destinationBucket: (value, values) => {
+        if (values.kind === 'transfer') {
+          if (!value) return 'Destination bucket is required for transfers';
+          if (value === values.sourceBucket) return 'Destination must differ from source bucket';
+        }
+        return null;
+      },
       debtId: (_value, values) => (values.debtPayment && !values.debtId ? 'Select a debt to apply this payment' : null),
       occurredAt: (value) => {
         if (!value) return null;
@@ -116,6 +126,8 @@ export function TransactionsView() {
   const editForm = useForm<Omit<TransactionFormValues, 'debtPayment' | 'debtId'>>({
     initialValues: {
       bucket: bucketOptions[0],
+      sourceBucket: bucketOptions[0],
+      destinationBucket: null,
       kind: 'expense',
       description: '',
       amountDollars: 0,
@@ -125,6 +137,13 @@ export function TransactionsView() {
     validate: {
       description: (value) => (!value.trim() ? 'Description is required' : null),
       amountDollars: (value) => (value <= 0 ? 'Amount must be greater than 0' : null),
+      destinationBucket: (value, values) => {
+        if (values.kind === 'transfer') {
+          if (!value) return 'Destination bucket is required for transfers';
+          if (value === values.sourceBucket) return 'Destination must differ from source bucket';
+        }
+        return null;
+      },
       occurredAt: (value) => {
         if (!value) return null;
         return normalizeDateInput(value) ? null : 'Enter a valid date and time';
@@ -236,7 +255,8 @@ export function TransactionsView() {
       const occurredAtDate = normalizeDateInput(values.occurredAt);
       const occurredAtIso = occurredAtDate ? occurredAtDate.toISOString() : new Date().toISOString();
       await api.recordTransaction({
-        bucket: values.bucket,
+        sourceBucket: values.sourceBucket,
+        destinationBucket: values.destinationBucket || undefined,
         kind: values.kind,
         description: values.description,
         amountCents: Math.round(values.amountDollars * 100),
@@ -258,12 +278,14 @@ export function TransactionsView() {
   const handleEditTransaction = (transaction: TransactionDTO) => {
     setEditingTransaction(transaction);
     editForm.setValues({
-      bucket: transaction.bucket as any,
-      kind: transaction.kind as any,
+      bucket: transaction.sourceBucket as BucketType,
+      sourceBucket: transaction.sourceBucket as BucketType,
+      destinationBucket: transaction.destinationBucket as BucketType | null,
+      kind: transaction.kind as TransactionKind,
       description: transaction.description,
       amountDollars: transaction.amountCents / 100,
       tags: transaction.tags || [],
-      occurredAt: normalizeDateInput(transaction.occurredAt as any),
+      occurredAt: normalizeDateInput(transaction.occurredAt),
     });
     setEditModalOpen(true);
   };
@@ -278,7 +300,8 @@ export function TransactionsView() {
       const occurredAtDate = normalizeDateInput(values.occurredAt);
       const occurredAtIso = occurredAtDate ? occurredAtDate.toISOString() : editingTransaction.occurredAt;
       await api.updateTransaction(editingTransaction.id, {
-        bucket: values.bucket,
+        sourceBucket: values.sourceBucket,
+        destinationBucket: values.destinationBucket || undefined,
         kind: values.kind,
         description: values.description,
         amountCents: Math.round(values.amountDollars * 100),
@@ -362,7 +385,7 @@ export function TransactionsView() {
       await Promise.all(
         toRecord.map((p) =>
           api.recordTransaction({
-            bucket: 'Fire Extinguisher',
+            sourceBucket: 'Fire Extinguisher',
             kind: 'expense',
             description: `Debt payment: ${p.name}`,
             amountCents: p.amountCents,
