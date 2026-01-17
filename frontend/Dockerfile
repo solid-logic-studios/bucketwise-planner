@@ -16,6 +16,13 @@ RUN pnpm install --frozen-lockfile
 
 COPY tsconfig.json ./
 COPY frontend ./frontend
+
+# Set Vite environment variables for production build
+# These get baked into the JavaScript bundle at build time
+# For Docker deployments, use relative paths so nginx can proxy
+ENV VITE_API_BASE=/api
+ENV VITE_AUTH_BASE=/auth
+
 RUN pnpm --filter frontend build
 
 FROM nginx:1.27-alpine AS runner
