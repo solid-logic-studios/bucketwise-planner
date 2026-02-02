@@ -7,6 +7,7 @@ import { DeleteTransactionUseCase } from '../../../application/use-cases/delete-
 import { RecordTransactionUseCase } from '../../../application/use-cases/record-transaction.use-case.js';
 import { UpdateTransactionUseCase } from '../../../application/use-cases/update-transaction.use-case.js';
 import { toSingleString } from '../utils/request-helpers.js';
+import type { AuthenticatedRequest } from '../types/authenticated-request.js';
 import { BaseController } from './base.controller.js';
 
 /**
@@ -49,7 +50,7 @@ export class TransactionController extends BaseController {
    */
   async recordTransaction(req: Request, res: Response): Promise<void> {
     // Validate input using Zod schema (validated.sourceBucket is already BarefootBucket type)
-    const userId = (req as any).user.id;
+    const userId = (req as AuthenticatedRequest).user.id;
     const validated = recordTransactionSchema.parse(req.body);
 
     // Execute use case with validated types
@@ -92,7 +93,7 @@ export class TransactionController extends BaseController {
    */
   async updateTransaction(req: Request, res: Response): Promise<void> {
     // Body is already validated by route handler (Zod parsed it with proper BarefootBucket types)
-    const userId = (req as any).user.id;
+    const userId = (req as AuthenticatedRequest).user.id;
     const validated = req.body as z.infer<typeof updateTransactionSchema>;
 
     // Execute use case with validated types
@@ -119,7 +120,7 @@ export class TransactionController extends BaseController {
    * @throws DomainError if transaction not found
    */
   async deleteTransaction(req: Request, res: Response): Promise<void> {
-    const userId = (req as any).user.id;
+    const userId = (req as AuthenticatedRequest).user.id;
     const id = toSingleString(req.params.id);
     
     if (!id) {

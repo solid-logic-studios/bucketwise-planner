@@ -1,6 +1,6 @@
 import { ActionIcon, Group, Select } from '@mantine/core';
 import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { api } from '../api/client.js';
 import type { ForthnightSummaryDTO } from '../api/types.js';
 
@@ -21,11 +21,7 @@ export function FortnightSelector({
   const [fortnights, setFortnights] = useState<ForthnightSummaryDTO[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadFortnights();
-  }, []);
-
-  const loadFortnights = async () => {
+  const loadFortnights = useCallback(async () => {
     try {
       setLoading(true);
       const data = await api.listFortnights();
@@ -41,7 +37,12 @@ export function FortnightSelector({
     } finally {
       setLoading(false);
     }
-  };
+
+  }, [selectedFortnightId, onFortnightChange]);
+
+  useEffect(() => {
+    loadFortnights();
+  }, [loadFortnights]);
 
   const formatFortnightLabel = (fortnight: ForthnightSummaryDTO): string => {
     const start = new Date(fortnight.periodStart);

@@ -1,24 +1,7 @@
 import type { ReactNode } from 'react';
-import { createContext, useCallback, useContext, useState } from 'react';
-import type { DebtDTO, FortnightDetailDTO, PageKey, TransactionDTO } from '../api/types';
-
-interface PageData {
-  currentPage: PageKey;
-  transactions?: TransactionDTO[];
-  specificDebt?: DebtDTO;
-  fortnightSnapshot?: FortnightDetailDTO;
-  fortnightId?: string;
-  debtId?: string;
-}
-
-interface PageContextValue {
-  pageData: PageData;
-  setPageData: (data: Partial<PageData>) => void;
-  setCurrentPage: (page: PageKey) => void;
-  clearPageData: () => void;
-}
-
-const PageContextContext = createContext<PageContextValue | undefined>(undefined);
+import { useCallback, useState } from 'react';
+import type { PageKey } from '../api/types';
+import { PageContextContext, type PageContextValue, type PageData } from './page-context';
 
 /**
  * PageContextProvider: Stores page-specific data for AI context enrichment.
@@ -82,18 +65,4 @@ export function PageContextProvider({ children }: { children: ReactNode }) {
       {children}
     </PageContextContext.Provider>
   );
-}
-
-/**
- * usePageDataContext: Access page data storage for view components.
- * 
- * Use this hook in view components to populate page data when content loads.
- * Different from usePageContext which combines route + data for ChatWidget.
- */
-export function usePageDataContext(): PageContextValue {
-  const context = useContext(PageContextContext);
-  if (!context) {
-    throw new Error('usePageDataContext must be used within PageContextProvider');
-  }
-  return context;
 }

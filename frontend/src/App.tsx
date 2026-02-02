@@ -22,7 +22,8 @@ import { HelpProvider } from './components/HelpDrawer.js';
 import { ChatProvider, ChatWidget, ProfileMenu, ThemeToggle, useChatContext } from './components/index.js';
 import { ProtectedRoute } from './components/ProtectedRoute.js';
 import { AuthProvider } from './contexts/AuthProvider.js';
-import { PageContextProvider, usePageDataContext } from './contexts/PageContextProvider.js';
+import { PageContextProvider } from './contexts/PageContextProvider.js';
+import { usePageDataContext } from './contexts/usePageDataContext.js';
 import { ChartsView } from './views/ChartsView.js';
 import { DashboardView } from './views/DashboardView.js';
 import { DebtsView } from './views/DebtsView.js';
@@ -65,9 +66,17 @@ function AppContent() {
     return () => window.removeEventListener('hashchange', syncFromHash);
   }, [setCurrentPage]);
 
+  // Sync internal navigation -> URL hash in an effect (external system)
+  useEffect(() => {
+    const raw = window.location.hash.replace(/^#/, '');
+    const currentHashPage = raw.split('?')[0];
+    if (currentHashPage !== pageData.currentPage) {
+      window.location.hash = pageData.currentPage;
+    }
+  }, [pageData.currentPage]);
+
   const handleNavChange = (key: NavKey) => {
     setCurrentPage(key as PageKey);
-    window.location.hash = key;
     close();
   };
 

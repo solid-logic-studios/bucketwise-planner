@@ -13,6 +13,9 @@ import type {
     SkippedDebtPaymentDTO,
     TransactionDTO,
     UpsertMortgageRequest,
+    CsvImportPreviewRequest,
+    CsvImportPreviewResponse,
+    CsvImportCommitRequest,
 } from './types.ts';
 
 const API_BASE = import.meta.env.VITE_API_BASE || '/api';
@@ -298,6 +301,49 @@ export const api = {
     const result = await response.json();
     return result.data;
   },
+
+  previewTransactionCsvImport: async (
+    file: File,
+    input: CsvImportPreviewRequest
+  ): Promise<CsvImportPreviewResponse> => {
+    const formData = new FormData();
+    formData.append('file', file, file.name);
+    if (input.formatPreset) {
+      formData.append('formatPreset', input.formatPreset);
+    }
+    if (input.mapping) {
+      formData.append('mapping', JSON.stringify(input.mapping));
+    }
+    if (input.defaultBucket) {
+      formData.append('defaultBucket', input.defaultBucket);
+    }
+    if (input.qifDateFormat) {
+      formData.append('qifDateFormat', input.qifDateFormat);
+    }
+
+    const token = accessToken || (typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null);
+    const response = await fetch(`${API_BASE}/transactions/import/csv/preview`, {
+      method: 'POST',
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error?.message || 'Preview failed');
+    }
+    const result = await response.json();
+    return result.data;
+  },
+
+  commitTransactionCsvImport: (input: CsvImportCommitRequest) =>
+    request<{ created: number; skipped: number; failed: Array<{ rowIndex: number; message: string }> }>(
+      '/transactions/import/csv/commit',
+      'POST',
+      input
+    ),
 
   skipDebtPayment: (
     debtId: string,

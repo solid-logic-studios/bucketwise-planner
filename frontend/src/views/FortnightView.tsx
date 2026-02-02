@@ -21,9 +21,9 @@ import { api } from '../api/client.js';
 import type { ForthnightSummaryDTO, FortnightDetailDTO } from '../api/types.js';
 import { EmptyState } from '../components/EmptyState.js';
 import { ErrorAlert } from '../components/ErrorAlert.js';
-import { useHelp } from '../components/HelpDrawer.js';
+import { useHelp } from '../components/help/useHelp.js';
 import { LoadingSpinner } from '../components/LoadingSpinner.js';
-import { usePageDataContext } from '../contexts/PageContextProvider.js';
+import { usePageDataContext } from '../contexts/usePageDataContext.ts';
 import { formatCurrency, formatDate, formatPercent } from '../utils/formatters.js';
 
 interface FortnightState {

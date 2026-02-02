@@ -1,7 +1,29 @@
 import type { Pool } from 'pg';
-import { Debt, type DebtType } from '../../../domain/model/debt.entity.js';
+import { Debt, type DebtType, type PaymentFrequency } from '../../../domain/model/debt.entity.js';
 import { Money } from '../../../domain/model/money.js';
 import type { DebtRepository } from '../../../domain/repositories/debt.repository.interface.js';
+
+type DebtRow = {
+  id: string;
+  name: string;
+  debt_type: string;
+  original_amount_cents: number;
+  current_balance_cents: number;
+  interest_rate: number | string;
+  minimum_payment_cents: number;
+  min_payment_frequency: string;
+  priority: number;
+};
+
+function parseInterestRate(value: number | string): number {
+  if (typeof value === 'number') return value;
+  const parsed = Number.parseFloat(value);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function parsePaymentFrequency(value: string): PaymentFrequency {
+  return value === 'MONTHLY' ? 'MONTHLY' : 'FORTNIGHTLY';
+}
 
 /**
  * PostgresDebtRepository: PostgreSQL implementation of DebtRepository.
@@ -152,16 +174,16 @@ export class PostgresDebtRepository implements DebtRepository {
      * @param row - The database row
      * @returns Debt entity
      */
-    private mapRowToDebt(row: any): Debt {
+    private mapRowToDebt(row: DebtRow): Debt {
         return new Debt(
             row.id,
             row.name,
             row.debt_type as DebtType,
             new Money(row.original_amount_cents),
             new Money(row.current_balance_cents),
-            parseFloat(row.interest_rate),
+            parseInterestRate(row.interest_rate),
             new Money(row.minimum_payment_cents),
-            row.min_payment_frequency,
+            parsePaymentFrequency(row.min_payment_frequency),
             row.priority
         );
     }

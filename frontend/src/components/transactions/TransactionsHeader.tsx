@@ -1,12 +1,14 @@
 import { ActionIcon, Button, Group, Title, Tooltip } from '@mantine/core';
-import { IconPlus, IconQuestionMark } from '@tabler/icons-react';
+import { IconFileUpload, IconPlus, IconQuestionMark } from '@tabler/icons-react';
 
 interface TransactionsHeaderProps {
   onAdd: () => void;
   onHelp: () => void;
+  onImport: () => void;
+  importDisabled?: boolean;
 }
 
-export function TransactionsHeader({ onAdd, onHelp }: TransactionsHeaderProps) {
+export function TransactionsHeader({ onAdd, onHelp, onImport, importDisabled }: TransactionsHeaderProps) {
   return (
     <Group justify="space-between" align="center">
       <Group gap="xs" align="center">
@@ -17,9 +19,19 @@ export function TransactionsHeader({ onAdd, onHelp }: TransactionsHeaderProps) {
           </ActionIcon>
         </Tooltip>
       </Group>
-      <Button leftSection={<IconPlus size={18} />} onClick={onAdd}>
-        Add Transaction
-      </Button>
+      <Group gap="sm">
+        <Button
+          variant="light"
+          leftSection={<IconFileUpload size={18} />}
+          onClick={onImport}
+          disabled={importDisabled}
+        >
+          Import CSV
+        </Button>
+        <Button leftSection={<IconPlus size={18} />} onClick={onAdd}>
+          Add Transaction
+        </Button>
+      </Group>
     </Group>
   );
 }

@@ -10,6 +10,7 @@ import { ListDebtsUseCase } from '../../../application/use-cases/list-debts.use-
 import { SkipDebtPaymentUseCase } from '../../../application/use-cases/skip-debt-payment.use-case.js';
 import { UpdateDebtUseCase } from '../../../application/use-cases/update-debt.use-case.js';
 import { UpsertMortgageUseCase } from '../../../application/use-cases/upsert-mortgage.use-case.js';
+import type { AuthenticatedRequest } from '../types/authenticated-request.js';
 import { BaseController } from './base.controller.js';
 
 /**
@@ -36,7 +37,7 @@ export class DebtController extends BaseController {
    * Query params: ?fortnightlyFireExtinguisherCents=92200&startDate=2026-01-03&currentFortnightId=<id>
    */
   async getPayoffPlan(req: Request, res: Response): Promise<void> {
-    const userId = (req as any).user.id;
+    const userId = (req as AuthenticatedRequest).user.id;
     const { fortnightlyFireExtinguisherCents, startDate, currentFortnightId } = req.query;
 
     // Default to 0 if not provided
@@ -59,27 +60,27 @@ export class DebtController extends BaseController {
   }
 
   async listDebts(req: Request, res: Response): Promise<void> {
-    const userId = (req as any).user.id;
+    const userId = (req as AuthenticatedRequest).user.id;
     const debts = await this.listDebtsUseCase.execute({ userId });
     this.sendSuccess(res, debts);
   }
 
   async createDebt(req: Request, res: Response): Promise<void> {
-    const userId = (req as any).user.id;
+    const userId = (req as AuthenticatedRequest).user.id;
     const validated = createDebtSchema.parse(req.body);
     const result = await this.createDebtUseCase.execute({ ...validated, userId });
     this.sendSuccess(res, result, 201);
   }
 
   async updateDebt(req: Request, res: Response): Promise<void> {
-    const userId = (req as any).user.id;
+    const userId = (req as AuthenticatedRequest).user.id;
     const validated = updateDebtSchema.parse({ ...req.body, id: req.params.id });
     await this.updateDebtUseCase.execute({ ...validated, userId });
     this.sendSuccess(res, { success: true });
   }
 
   async skipPayment(req: Request, res: Response): Promise<void> {
-    const userId = (req as any).user.id;
+    const userId = (req as AuthenticatedRequest).user.id;
     const validated = skipDebtPaymentSchema.parse({ ...req.body, debtId: req.params.id });
     const result = await this.skipDebtPaymentUseCase.execute({ ...validated, userId });
     this.sendSuccess(res, result, 201);
@@ -88,14 +89,14 @@ export class DebtController extends BaseController {
   // Mortgage endpoints
   async getMortgage(req: Request, res: Response): Promise<void> {
     if (!this.getMortgageUseCase) throw new Error('Mortgage use case not wired');
-    const userId = (req as any).user.id;
+    const userId = (req as AuthenticatedRequest).user.id;
     const mortgage = await this.getMortgageUseCase.execute({ userId });
     this.sendSuccess(res, mortgage);
   }
 
   async upsertMortgage(req: Request, res: Response): Promise<void> {
     if (!this.upsertMortgageUseCase) throw new Error('Mortgage use case not wired');
-    const userId = (req as any).user.id;
+    const userId = (req as AuthenticatedRequest).user.id;
     const validated = upsertMortgageSchema.parse(req.body);
     const result = await this.upsertMortgageUseCase.execute({ ...validated, userId });
     this.sendSuccess(res, result, 201);
@@ -103,7 +104,7 @@ export class DebtController extends BaseController {
 
   async getMortgageOverpaymentPlan(req: Request, res: Response): Promise<void> {
     if (!this.calculateMortgageOverpaymentPlanUseCase) throw new Error('Mortgage use case not wired');
-    const userId = (req as any).user.id;
+    const userId = (req as AuthenticatedRequest).user.id;
     const parsed = mortgageOverpaymentQuerySchema.parse({ fortnightlyFeCents: req.query.fortnightlyFeCents });
     const result = await this.calculateMortgageOverpaymentPlanUseCase.execute({ userId, ...parsed });
     this.sendSuccess(res, result);

@@ -281,8 +281,8 @@ describe('BarefootAdvisorService', () => {
     });
 
     it('should handle undefined/null history gracefully', () => {
-      const result1 = service.formatConversationHistory(undefined as any);
-      const result2 = service.formatConversationHistory(null as any);
+      const result1 = service.formatConversationHistory(undefined as unknown as never);
+      const result2 = service.formatConversationHistory(null as unknown as never);
 
       expect(result1).toBe('');
       expect(result2).toBe('');

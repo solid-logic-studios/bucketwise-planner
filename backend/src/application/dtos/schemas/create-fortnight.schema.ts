@@ -8,7 +8,7 @@ const requiredBlowAllocations = {
   'Fire Extinguisher': 0.2,
 } as const;
 
-const optionalBuckets = ['Mojo', 'Grow'] as const;
+// Reserved for future optional buckets; left here for documentation.
 
 /**
  * CreateFortnightSchema: Zod schema for validating fortnight creation input.
@@ -78,4 +78,4 @@ export const createFortnightSchema = z
 /**
  * Type inference for validated input
  */
-type CreateFortnightSchemaType = z.infer<typeof createFortnightSchema>;
+export type CreateFortnightSchemaType = z.infer<typeof createFortnightSchema>;

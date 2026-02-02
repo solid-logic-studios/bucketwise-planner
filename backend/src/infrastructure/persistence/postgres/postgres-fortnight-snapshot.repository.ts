@@ -65,9 +65,11 @@ function deserializeTransactions(rows: SerializedTransaction[]): Transaction[] {
   );
 }
 
-function mapRowToSnapshot(row: any): FortnightSnapshot {
-  const allocations = deserializeAllocations((row.allocations as SerializedAllocation[]) ?? []);
-  const transactions = deserializeTransactions((row.transactions as SerializedTransaction[]) ?? []);
+function mapRowToSnapshot(row: FortnightSnapshotRow): FortnightSnapshot {
+  const allocationsRaw = Array.isArray(row.allocations) ? row.allocations : [];
+  const transactionsRaw = Array.isArray(row.transactions) ? row.transactions : [];
+  const allocations = deserializeAllocations(allocationsRaw as SerializedAllocation[]);
+  const transactions = deserializeTransactions(transactionsRaw as SerializedTransaction[]);
   return new FortnightSnapshot(
     row.id,
     new Date(row.period_start),
@@ -76,6 +78,14 @@ function mapRowToSnapshot(row: any): FortnightSnapshot {
     transactions
   );
 }
+
+type FortnightSnapshotRow = {
+  id: string;
+  period_start: string | Date;
+  period_end: string | Date;
+  allocations: unknown;
+  transactions: unknown;
+};
 
 export class PostgresFortnightSnapshotRepository
   implements FortnightSnapshotRepository
@@ -105,7 +115,7 @@ export class PostgresFortnightSnapshotRepository
       [id, userId]
     );
     if (result.rowCount === 0) return null;
-    return mapRowToSnapshot(result.rows[0]);
+    return mapRowToSnapshot(result.rows[0] as FortnightSnapshotRow);
   }
 
   async findByPeriod(userId: string, periodStart: Date): Promise<FortnightSnapshot | null> {
@@ -114,7 +124,7 @@ export class PostgresFortnightSnapshotRepository
       [periodStart, userId]
     );
     if (result.rowCount === 0) return null;
-    return mapRowToSnapshot(result.rows[0]);
+    return mapRowToSnapshot(result.rows[0] as FortnightSnapshotRow);
   }
 
   async getAll(userId: string): Promise<FortnightSnapshot[]> {

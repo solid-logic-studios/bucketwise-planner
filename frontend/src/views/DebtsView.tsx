@@ -25,9 +25,9 @@ import type { DebtDTO, DebtPayoffPlanDTO, ProfileDTO } from '../api/types.js';
 import { DebtPayoffMilestones } from '../components/charts/DebtPayoffMilestones.js';
 import { DebtSnowballGanttChart } from '../components/charts/DebtSnowballGanttChart.js';
 import { ErrorAlert } from '../components/ErrorAlert.js';
-import { useHelp } from '../components/HelpDrawer.js';
+import { useHelp } from '../components/help/useHelp.js';
 import { LoadingSpinner } from '../components/LoadingSpinner.js';
-import { usePageDataContext } from '../contexts/PageContextProvider.js';
+import { usePageDataContext } from '../contexts/usePageDataContext.ts';
 import { formatCurrency } from '../utils/formatters.js';
 
 const bucketOptions = [

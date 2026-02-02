@@ -2,6 +2,17 @@ import { GoogleGenAI } from '@google/genai';
 import { DomainError } from '../../domain/exceptions/domain-error.js';
 import type { AiResponse, IAiProvider, TokenUsage } from '../../domain/services/ai-provider.interface.js';
 
+type GeminiUsageMetadata = {
+  promptTokenCount?: number;
+  candidatesTokenCount?: number;
+  totalTokenCount?: number;
+};
+
+type GeminiGenerateContentResponse = {
+  text?: string;
+  usageMetadata?: GeminiUsageMetadata;
+};
+
 /**
  * GeminiAiProviderError: Domain error for Gemini API failures.
  * Thrown when the Google Gen AI API call fails.
@@ -94,19 +105,18 @@ export class GeminiAiProvider implements IAiProvider {
         },
       });
 
-      const text = (response as any).text as string | undefined;
+      const { text, usageMetadata } = response as unknown as GeminiGenerateContentResponse;
       if (!text || typeof text !== 'string' || text.trim().length === 0) {
         throw new GeminiAiProviderError('Empty response from API');
       }
 
       // Extract token usage when available
       let usage: TokenUsage | undefined = undefined;
-      const usageMeta = (response as any).usageMetadata;
-      if (usageMeta) {
+      if (usageMetadata) {
         usage = {
-          promptTokens: usageMeta.promptTokenCount || 0,
-          completionTokens: usageMeta.candidatesTokenCount || 0,
-          totalTokens: usageMeta.totalTokenCount || 0,
+          promptTokens: usageMetadata.promptTokenCount || 0,
+          completionTokens: usageMetadata.candidatesTokenCount || 0,
+          totalTokens: usageMetadata.totalTokenCount || 0,
         };
       }
 

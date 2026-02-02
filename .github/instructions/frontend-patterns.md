@@ -386,6 +386,33 @@ export function formatDateDisplay(date: string | Date): string {
 <Text>{formatDateDisplay('2025-12-31')}</Text>
 ```
 
+## OOP Helper Patterns
+
+### View Model Adapter
+```typescript
+// view-models/debt-view-model.ts
+export class DebtViewModel {
+  constructor(private readonly debt: DebtDTO) {}
+
+  get displayName(): string {
+    return this.debt.name;
+  }
+
+  get balanceLabel(): string {
+    return formatCurrency(this.debt.balanceCents);
+  }
+
+  get isHighPriority(): boolean {
+    return this.debt.priority === 1;
+  }
+}
+```
+
+**Rules:**
+- Use view-model/adapters to keep view rendering thin
+- Centralize formatting and derived values
+- Prefer small focused classes over ad-hoc helpers in components
+
 ## Common Anti-Patterns to Avoid
 
 ❌ **Don't compare dates without normalization**

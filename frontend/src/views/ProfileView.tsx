@@ -20,7 +20,7 @@ import { useEffect, useState } from 'react';
 import { api } from '../api/client.js';
 import type { ProfileDTO } from '../api/types.js';
 import { ErrorAlert } from '../components/ErrorAlert.js';
-import { useHelp } from '../components/HelpDrawer.js';
+import { useHelp } from '../components/help/useHelp.js';
 import { LoadingSpinner } from '../components/LoadingSpinner.js';
 import { formatCurrency } from '../utils/formatters.js';
 
@@ -161,7 +161,7 @@ export function ProfileView() {
     return () => {
         cancelled = true;
     };
-  }, []);
+  }, [form]);
 
   const handleAddFixedExpense = () => {
     form.insertListItem('fixedExpenses', {

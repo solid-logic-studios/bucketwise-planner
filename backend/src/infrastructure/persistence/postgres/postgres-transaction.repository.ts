@@ -10,7 +10,7 @@ import type { TransactionRepository } from '../../../domain/repositories/transac
  * Handles both legacy (bucket) and new (source_bucket, destination_bucket) columns.
  * For backward compatibility, if source_bucket is null, falls back to bucket column.
  */
-function mapRowToTransaction(row: any): Transaction {
+function mapRowToTransaction(row: TransactionRow): Transaction {
   // Use source_bucket if available, otherwise fall back to bucket for backward compatibility
   const sourceBucket = (row.source_bucket || row.bucket) as BarefootBucket;
   const destinationBucket = (row.destination_bucket as BarefootBucket | null) || null;
@@ -23,9 +23,21 @@ function mapRowToTransaction(row: any): Transaction {
     new Money(Number(row.amount_cents)),
     row.description,
     new Date(row.occurred_at),
-    (row.tags as string[]) ?? []
+    (Array.isArray(row.tags) ? (row.tags as string[]) : [])
   );
 }
+
+type TransactionRow = {
+  id: string;
+  bucket: string | null;
+  source_bucket: string | null;
+  destination_bucket: string | null;
+  kind: string;
+  amount_cents: number | string;
+  description: string;
+  occurred_at: string | Date;
+  tags: unknown;
+};
 
 export class PostgresTransactionRepository
   implements TransactionRepository
@@ -59,10 +71,10 @@ export class PostgresTransactionRepository
       [id, userId]
     );
     if (result.rowCount === 0) return null;
-    return mapRowToTransaction(result.rows[0]);
+    return mapRowToTransaction(result.rows[0] as TransactionRow);
   }
 
-  async findByFortnightId(userId: string, _fortnightId: string): Promise<Transaction[]> {
+  async findByFortnightId(_userId: string, _fortnightId: string): Promise<Transaction[]> {
     // Fortnight relationship not yet modeled; placeholder for future join.
     return [];
   }
@@ -77,7 +89,7 @@ export class PostgresTransactionRepository
       'SELECT * FROM transactions WHERE (source_bucket = $1 OR bucket = $1) AND user_id = $2',
       [bucket, userId]
     );
-    return result.rows.map(mapRowToTransaction);
+    return (result.rows as TransactionRow[]).map(mapRowToTransaction);
   }
 
   /**
@@ -88,7 +100,7 @@ export class PostgresTransactionRepository
       'SELECT * FROM transactions WHERE user_id = $1 AND kind = $2 AND source_bucket = $3 ORDER BY occurred_at DESC',
       [userId, 'transfer', sourceBucket]
     );
-    return result.rows.map(mapRowToTransaction);
+    return (result.rows as TransactionRow[]).map(mapRowToTransaction);
   }
 
   /**
@@ -99,7 +111,7 @@ export class PostgresTransactionRepository
       'SELECT * FROM transactions WHERE user_id = $1 AND kind = $2 AND destination_bucket = $3 ORDER BY occurred_at DESC',
       [userId, 'transfer', destinationBucket]
     );
-    return result.rows.map(mapRowToTransaction);
+    return (result.rows as TransactionRow[]).map(mapRowToTransaction);
   }
 
   /**
@@ -115,7 +127,7 @@ export class PostgresTransactionRepository
        ORDER BY occurred_at DESC`,
       [userId, 'transfer', bucketA, bucketB]
     );
-    return result.rows.map(mapRowToTransaction);
+    return (result.rows as TransactionRow[]).map(mapRowToTransaction);
   }
 
   /**
@@ -173,4 +185,3 @@ export class PostgresTransactionRepository
     return result.rows.map(mapRowToTransaction);
   }
 }
-

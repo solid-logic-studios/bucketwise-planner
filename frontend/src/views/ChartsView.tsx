@@ -11,8 +11,8 @@ import { FireExtinguisherWhatIfChart } from '../components/charts/FireExtinguish
 import { IncomeExpensesTrendChart } from '../components/charts/IncomeExpensesTrendChart.js';
 import { TagShareDonut } from '../components/charts/TagShareDonut.js';
 import { TopTagsSpendingChart } from '../components/charts/TopTagsSpendingChart.js';
-import { useHelp } from '../components/HelpDrawer.js';
-import { usePageDataContext } from '../contexts/PageContextProvider.js';
+import { useHelp } from '../components/help/useHelp.js';
+import { usePageDataContext } from '../contexts/usePageDataContext.ts';
 import classes from './ChartsView.module.css';
 
 export function ChartsView() {

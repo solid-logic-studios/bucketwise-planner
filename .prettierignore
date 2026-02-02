@@ -1,0 +1,13 @@
+node_modules
+dist
+coverage
+.cache
+.turbo
+
+pnpm-lock.yaml
+
+backend/dist
+frontend/dist
+
+*.log
+download.tar

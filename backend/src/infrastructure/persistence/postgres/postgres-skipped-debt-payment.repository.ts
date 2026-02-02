@@ -3,7 +3,18 @@ import { Money } from '../../../domain/model/money.js';
 import { SkippedDebtPayment } from '../../../domain/model/skipped-debt-payment.entity.js';
 import type { SkippedDebtPaymentRepository } from '../../../domain/repositories/skipped-debt-payment.repository.interface.js';
 
-function mapRow(row: any): SkippedDebtPayment {
+type SkippedDebtPaymentRow = {
+  id: string;
+  debt_id: string;
+  fortnight_id: string;
+  payment_date: string | Date;
+  amount_cents: number | string;
+  skip_reason: string | null;
+  skipped_at: string | Date | null;
+  created_at?: string | Date | null;
+};
+
+function mapRow(row: SkippedDebtPaymentRow): SkippedDebtPayment {
   return new SkippedDebtPayment(
     row.id,
     row.debt_id,

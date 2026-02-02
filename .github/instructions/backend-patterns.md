@@ -324,3 +324,24 @@ class Debt {
   private readonly balanceCents: number;
 }
 ```
+
+## OOP Helper Patterns
+
+### Base Use Case Template
+```typescript
+// application/use-cases/base-use-case.ts
+export abstract class BaseUseCase<TRequest, TResponse> implements IUseCase<TRequest, TResponse> {
+  async execute(request: TRequest): Promise<TResponse> {
+    this.validate(request);
+    return this.handle(request);
+  }
+
+  protected abstract validate(request: TRequest): void;
+  protected abstract handle(request: TRequest): Promise<TResponse>;
+}
+```
+
+**Rules:**
+- Use base classes for shared workflow steps (validate/handle/persist)
+- Keep domain logic in domain entities; use cases orchestrate
+- Prefer composition with repositories/services over deep inheritance

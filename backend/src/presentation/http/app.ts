@@ -17,12 +17,14 @@ import { ListSkippedDebtPaymentsUseCase } from '../../application/use-cases/list
 import { ListTransactionsUseCase } from '../../application/use-cases/list-transactions.use-case.js';
 import { LoginUseCase } from '../../application/use-cases/login.use-case.js';
 import { LogoutUseCase } from '../../application/use-cases/logout.use-case.js';
+import { PreviewTransactionCsvImportUseCase } from '../../application/use-cases/preview-transaction-csv-import.use-case.js';
 import { RecordTransactionUseCase } from '../../application/use-cases/record-transaction.use-case.js';
 import { RefreshTokenUseCase } from '../../application/use-cases/refresh-token.use-case.js';
 import { SendChatMessageUseCase } from '../../application/use-cases/send-chat-message.use-case.js';
 import { SignupUseCase } from '../../application/use-cases/signup.use-case.js';
 import { SkipDebtPaymentUseCase } from '../../application/use-cases/skip-debt-payment.use-case.js';
 import { UpdateDebtUseCase } from '../../application/use-cases/update-debt.use-case.js';
+import { CommitTransactionCsvImportUseCase } from '../../application/use-cases/commit-transaction-csv-import.use-case.js';
 import { UpdateTransactionUseCase } from '../../application/use-cases/update-transaction.use-case.js';
 import { UpsertMortgageUseCase } from '../../application/use-cases/upsert-mortgage.use-case.js';
 import { UpsertProfileUseCase } from '../../application/use-cases/upsert-profile.use-case.js';
@@ -54,6 +56,7 @@ import { DebtController } from './controllers/debt.controller.js';
 import { FortnightController } from './controllers/fortnight.controller.js';
 import { ProfileController } from './controllers/profile.controller.js';
 import { TransactionController } from './controllers/transaction.controller.js';
+import { TransactionImportController } from './controllers/transaction-import.controller.js';
 import { createAuthMiddleware } from './middleware/auth.middleware.js';
 import { contentTypeMiddleware, corsPrefixMiddleware, requestLoggingMiddleware } from './middlewares/common.middleware.js';
 import { globalErrorMiddleware, notFoundMiddleware } from './middlewares/error.middleware.js';
@@ -64,6 +67,7 @@ import { buildDashboardRouter } from './routes/dashboard.routes.js';
 import { buildDebtRouter } from './routes/debt.routes.js';
 import { buildFortnightRouter, buildTransactionRouter } from './routes/fortnight.routes.js';
 import { buildProfileRouter } from './routes/profile.routes.js';
+import { buildTransactionImportRouter } from './routes/transaction-import.routes.js';
 import { buildTransactionRouter as buildRecordTransactionRouter } from './routes/transaction.routes.js';
 
 /**
@@ -110,7 +114,8 @@ export async function createApp(): Promise<Application> {
     ? new PostgresUserRepository(pool)
     : new MemoryUserRepository();
 
-  const unitOfWork = new MemoryUnitOfWork();
+  // Placeholder: wire real UnitOfWork when adding multi-step transactions.
+  const _unitOfWork = new MemoryUnitOfWork();
 
   // Application layer - Use cases
   const recordTransactionUseCase = new RecordTransactionUseCase(transactionRepo, debtRepo);
@@ -156,6 +161,9 @@ export async function createApp(): Promise<Application> {
 
   // Controllers
   const transactionController = new TransactionController(recordTransactionUseCase, updateTransactionUseCase, deleteTransactionUseCase);
+  const previewCsvImportUseCase = new PreviewTransactionCsvImportUseCase(profileRepo);
+  const commitCsvImportUseCase = new CommitTransactionCsvImportUseCase(recordTransactionUseCase, transactionRepo);
+  const transactionImportController = new TransactionImportController(previewCsvImportUseCase, commitCsvImportUseCase);
   const fortnightController = new FortnightController(
     createFortnightUseCase,
     getFortnightUseCase,
@@ -179,6 +187,7 @@ export async function createApp(): Promise<Application> {
 
   // Routers
   const recordTransactionRouter = buildRecordTransactionRouter(transactionController);
+  const transactionImportRouter = buildTransactionImportRouter(transactionImportController);
   const fortnightRouter = buildFortnightRouter(fortnightController);
   const transactionQueryRouter = buildTransactionRouter(fortnightController);
   const debtRouter = buildDebtRouter(debtController);
@@ -223,6 +232,7 @@ export async function createApp(): Promise<Application> {
 
   // Protected API routes
   app.use('/api/transactions', recordTransactionRouter);
+  app.use('/api/transactions', transactionImportRouter);
   app.use('/api/transactions', transactionQueryRouter);
   app.use('/api/fortnights', fortnightRouter);
   app.use('/api/debts', debtRouter);
@@ -245,4 +255,3 @@ export async function createApp(): Promise<Application> {
 
   return app;
 }
-

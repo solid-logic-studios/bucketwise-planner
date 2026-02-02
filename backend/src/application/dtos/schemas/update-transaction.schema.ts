@@ -70,5 +70,4 @@ export const updateTransactionSchema = z.object({
 /**
  * Type inference for validated input
  */
-type UpdateTransactionSchemaType = z.infer<typeof updateTransactionSchema>;
-
+export type UpdateTransactionSchemaType = z.infer<typeof updateTransactionSchema>;

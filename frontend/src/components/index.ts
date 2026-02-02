@@ -1,5 +1,6 @@
 export { BucketBadge } from './BucketBadge.js';
-export { ChatProvider, useChatContext } from './ChatProvider.js';
+export { ChatProvider } from './ChatProvider.js';
+export { useChatContext } from './chat/useChatContext.js';
 export { ChatWidget } from './ChatWidget.js';
 export { DebtTypeBadge } from './DebtTypeBadge.js';
 export { EmptyState } from './EmptyState.js';
@@ -20,4 +21,3 @@ export { FireExtinguisherWhatIfChart } from './charts/FireExtinguisherWhatIfChar
 export { IncomeExpensesTrendChart } from './charts/IncomeExpensesTrendChart.js';
 export { TagShareDonut } from './charts/TagShareDonut.js';
 export { TopTagsSpendingChart } from './charts/TopTagsSpendingChart.js';
-

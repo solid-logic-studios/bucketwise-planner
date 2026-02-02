@@ -1,6 +1,17 @@
 import { Anchor, Button, Card, PasswordInput, Stack, Text, TextInput, Title } from '@mantine/core';
 import { useState } from 'react';
-import { useAuth } from '../contexts/AuthProvider.tsx';
+import { useAuth } from '../contexts/useAuth.ts';
+
+function getErrorMessage(err: unknown): string {
+  if (err instanceof Error) return err.message;
+
+  if (typeof err === 'object' && err !== null && 'message' in err) {
+    const maybeMessage = (err as { message?: unknown }).message;
+    if (typeof maybeMessage === 'string' && maybeMessage.trim()) return maybeMessage;
+  }
+
+  return 'Login failed';
+}
 
 interface LoginViewProps {
   onSwitch: () => void;
@@ -19,8 +30,8 @@ export function LoginView({ onSwitch }: LoginViewProps) {
     setLoading(true);
     try {
       await login(email, password);
-    } catch (err: any) {
-      setError(err?.message || 'Login failed');
+    } catch (err: unknown) {
+      setError(getErrorMessage(err));
     } finally {
       setLoading(false);
     }

@@ -1,6 +1,6 @@
-import { useMemo } from 'react';
 import type { PageContext } from '../api/types';
-import { usePageDataContext } from '../contexts/PageContextProvider';
+import { usePageDataContext } from '../contexts/usePageDataContext.ts';
+import { useMemo } from 'react';
 
 /**
  * usePageContext hook: Returns current page context enriched with data from PageContextProvider.

@@ -23,7 +23,7 @@ export function NotificationExamples() {
     try {
       // await saveTransaction(data);
       showSuccess('Transaction saved successfully');
-    } catch (error) {
+    } catch (_error) {
       showError('Failed to save transaction');
     }
   };
@@ -33,15 +33,15 @@ export function NotificationExamples() {
     confirmDelete({
       title: 'Delete debt',
       children: 'Are you sure you want to delete this debt? This action cannot be undone.',
-      onConfirm: async () => {
-        try {
-          // await deleteDebt(debtId);
-          showSuccess('Debt deleted successfully');
-        } catch (error) {
-          showError('Failed to delete debt');
-        }
-      },
-    });
+        onConfirm: async () => {
+          try {
+            // await deleteDebt(debtId);
+            showSuccess('Debt deleted successfully');
+          } catch (_error) {
+            showError('Failed to delete debt');
+          }
+        },
+      });
   };
 
   // Example 3: Generic action confirmation
@@ -71,7 +71,7 @@ export function NotificationExamples() {
         message: 'Your debt payoff plan is ready',
         color: 'green',
       });
-    } catch (error) {
+    } catch (_error) {
       updateNotification(loadingId, {
         title: 'Calculation failed',
         message: 'Unable to calculate payoff plan',
