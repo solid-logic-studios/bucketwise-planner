@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express';
 import type { GetDashboardUseCase } from '../../../application/use-cases/get-dashboard.use-case.js';
+import type { AuthenticatedRequest } from '../types/authenticated-request.js';
 import { BaseController } from './base.controller.js';
 
 /**
@@ -23,7 +24,7 @@ export class DashboardController extends BaseController {
    * Returns aggregated dashboard with current fortnight breakdown, debts, and projections.
    */
   async getDashboard(req: Request, res: Response): Promise<void> {
-    const userId = (req as any).user.id;
+    const userId = (req as AuthenticatedRequest).user.id;
     const { currentFortnightId } = req.query;
 
     const request = {

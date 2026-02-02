@@ -36,6 +36,7 @@
 - **Dependency injection**: Manual constructor injection, no global singletons or static state
 - **Testing**: Vitest unit tests for domain/use cases, deterministic and fast, mock repositories for isolation
 - **Optional AI**: AI routes only registered if `AI_ENABLED=true` and `GEMINI_API_KEY` is set; graceful no-op if disabled
+- **OOP-first**: Prefer composition, inheritance, and abstraction to model behaviors; use base classes/interfaces for shared workflows
 
 ### Frontend (React + Mantine)
 - **Views**: DashboardView, FortnightView, TransactionsView, DebtsView, ProfileView
@@ -44,6 +45,7 @@
 - **Theme**: Dark custom Mantine theme (navy/slate with teal/amber accents)
 - **Help System**: Global HelpDrawer with context provider, keyboard shortcuts (⌘/), searchable content
 - **UX Patterns**: Tooltips on complex controls, loading/error/empty states, consistent formatting
+- **OOP where useful**: Extract shared UI behavior into helper classes/adapters, avoid repeated logic in views
 
 ## Coding Conventions
 
@@ -60,6 +62,7 @@
 - Value objects: immutable (Money uses integer cents), guard invariants in constructors
 - Routes: wire with `asyncHandler`, validate with Zod middleware first, centralized error handling
 - Logging: use request logging middleware, avoid ad-hoc console logs in domain/application
+- OOP helpers: prefer base use-case/repository abstractions or mappers to reduce repetition
 
 ### Frontend Patterns
 - Date handling: use `formatDateToISO()` utility to normalize dates to YYYY-MM-DD (prevents timezone drift)
@@ -68,6 +71,7 @@
 - Help triggers: "?" button + `mod+/` hotkey pattern on all pages
 - Tooltips: use Mantine Tooltip on complex buttons/fields/headers
 - Components: small, focused, prop-driven; avoid prop drilling with context when needed
+- OOP helpers: encapsulate shared logic in adapters/services to avoid repetition across views
 
 ### Testing
 - Unit tests: domain objects, value objects, pure functions — fast and deterministic

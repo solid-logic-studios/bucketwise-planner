@@ -1,5 +1,7 @@
 import type { Request, Response } from 'express';
 import type { SendChatMessageUseCase } from '../../../application/use-cases/send-chat-message.use-case.js';
+import type { PageContext } from '../../../application/dtos/chat.dto.js';
+import type { AuthenticatedRequest } from '../types/authenticated-request.js';
 import { BaseController } from './base.controller.js';
 
 /**
@@ -48,12 +50,12 @@ export class ChatController extends BaseController {
    * @throws DomainError (caught by error middleware) if profile not found or AI fails
    */
   async sendMessage(req: Request, res: Response): Promise<void> {
-    const userId = (req as any).user.id;
+    const userId = (req as AuthenticatedRequest).user.id;
     // Request body already validated by middleware
     const { message, conversationHistory, pageContext } = req.body as {
       message: string;
       conversationHistory?: Array<{ id: string; role: 'user' | 'assistant'; content: string; timestamp: string }>;
-      pageContext?: unknown;
+      pageContext?: PageContext;
     };
 
     // Build request payload respecting exactOptionalPropertyTypes
@@ -61,18 +63,18 @@ export class ChatController extends BaseController {
       userId: string;
       message: string;
       conversationHistory?: Array<{ id: string; role: 'user' | 'assistant'; content: string; timestamp: string }>;
-      pageContext?: unknown;
+      pageContext?: PageContext;
     } = { userId, message };
 
     if (conversationHistory) {
       payload.conversationHistory = conversationHistory;
     }
     if (pageContext) {
-      payload.pageContext = pageContext as any;
+      payload.pageContext = pageContext;
     }
 
     // Execute use case with optional context
-    const result = await this.sendChatMessageUseCase.execute(payload as any);
+    const result = await this.sendChatMessageUseCase.execute(payload);
 
     // Send success response
     this.sendSuccess(res, result);

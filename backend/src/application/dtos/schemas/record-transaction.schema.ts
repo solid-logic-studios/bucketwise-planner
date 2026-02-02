@@ -86,5 +86,4 @@ export const recordTransactionSchema = z.object({
 /**
  * Type inference for validated input
  */
-type RecordTransactionSchemaType = z.infer<typeof recordTransactionSchema>;
-
+export type RecordTransactionSchemaType = z.infer<typeof recordTransactionSchema>;

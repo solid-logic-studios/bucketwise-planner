@@ -1,0 +1,70 @@
+{
+    "$schema": "https://opencode.ai/config.json",
+    "instructions": [
+        "AGENTS.md",
+        ".github/copilot-instructions.md",
+        ".github/instructions/backend-patterns.md",
+        ".github/instructions/frontend-patterns.md"
+    ],
+    "permission": {
+        "read": "allow",
+        "write": "allow",
+        "bash": {
+            "pnpm test *": "allow",
+            "ls *": "allow",
+            "*": "ask"
+        }
+    },
+    "provider": {
+        "ollama": {
+            "npm": "@ai-sdk/openai-compatible",
+            "options": {
+                "baseURL": "http://192.168.68.61:11434/v1",
+                "timeout": 300000,
+                "num_ctx": 16384
+            },
+            "models": {
+                "llama3.1:8b": {
+                    "name": "Llama 3.1 (Standard)",
+                    "toolChoice": "auto"
+                },
+                "qwen-coder-32k": {
+                    "name": "Qwen 2.5 Coder (32k Local)",
+                    "toolChoice": "auto"
+                },
+                "mistral-nemo": {
+                    "name": "Mistral Nemo 12B",
+                    "toolChoice": "auto"
+                },
+                "deepseek-r1:8b": {
+                    "name": "DeepSeek R1 (Reasoning)",
+                    "toolChoice": "auto"
+                }
+            }
+        }
+    },
+    "agent": {
+        "plan": {
+            "mode": "primary",
+            "model": "github-copilot/gpt-5.2",
+            "description": "Architect: Fast planning via Copilot."
+        },
+        "build": {
+            "mode": "primary",
+            "model": "ollama/mistral-nemo",
+            "temperature": 0.2,
+            "description": "Lead Engineer: Mistral Nemo (Megadesktop)"
+        },
+        "deep-think": {
+            "mode": "primary",
+            "model": "ollama/mistral-nemo",
+            "temperature": 0.5,
+            "description": "Logic Unit: Deep reasoning via Mistral Nemo."
+        },
+        "copilot": {
+            "mode": "primary",
+            "model": "github-copilot/gpt-5.2",
+            "description": "Assistant: Standard Chat."
+        }
+    }
+}

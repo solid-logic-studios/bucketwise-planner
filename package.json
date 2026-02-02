@@ -1,7 +1,7 @@
 {
   "name": "budget_app",
   "private": true,
-  "version": "0.2.0",
+  "version": "0.4.0",
   "description": "Workspace root for backend and frontend packages",
   "packageManager": "pnpm@10.25.0",
   "scripts": {
@@ -19,6 +19,20 @@
     "frontend:test:coverage": "pnpm --filter frontend test:coverage",
     "test": "pnpm -r run test",
     "test:watch": "pnpm -r run test:watch",
-    "test:coverage": "pnpm -r run test:coverage"
+    "test:coverage": "pnpm -r run test:coverage",
+    "lint": "eslint . --max-warnings=0 --cache --cache-location .cache/eslint",
+    "lint:type": "ESLINT_TYPE_AWARE=1 eslint . --max-warnings=0 --cache --cache-location .cache/eslint-type",
+    "format": "prettier . --write --cache --cache-location .cache/prettier",
+    "format:check": "prettier . --check --cache --cache-location .cache/prettier"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "eslint": "^9.39.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.4.24",
+    "globals": "^16.5.0",
+    "prettier": "^3.6.2",
+    "typescript-eslint": "^8.51.0"
   }
 }

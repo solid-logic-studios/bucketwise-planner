@@ -1,6 +1,7 @@
 import type { NextFunction, Request, Response } from 'express';
 import type { JwtProvider } from '../../../infrastructure/auth/JwtProvider.js';
 import type { TokenBlacklist } from '../../../infrastructure/auth/TokenBlacklist.js';
+import type { AuthenticatedUser } from '../types/authenticated-request.js';
 
 /**
  * Auth middleware: protects routes by verifying JWT access tokens.
@@ -26,7 +27,7 @@ export function createAuthMiddleware(
       const token = authHeader.substring(7); // Remove 'Bearer ' prefix
 
       // Check if token is blacklisted (user logged out)
-        if (tokenBlacklist.has(token)) {
+      if (tokenBlacklist.has(token)) {
         res.status(401).json({
           success: false,
           error: { message: 'Token has been revoked', code: 'TOKEN_REVOKED' },
@@ -38,12 +39,10 @@ export function createAuthMiddleware(
       const payload = jwtProvider.verifyAccessToken(token);
       
       // Attach user to request
-        (req as any).user = {
-          id: payload.userId,
-        };
+      (req as Request & { user?: AuthenticatedUser }).user = { id: payload.userId };
 
       next();
-    } catch (error: any) {
+    } catch (_error: unknown) {
       res.status(401).json({
         success: false,
         error: { message: 'Invalid or expired token', code: 'INVALID_TOKEN' },

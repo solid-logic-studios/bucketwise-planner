@@ -21,6 +21,60 @@ export interface TransactionDTO {
   tags?: string[];
 }
 
+export interface CsvImportPreviewRow {
+  rowIndex: number;
+  raw: string[];
+  date: string | null;
+  description: string;
+  amountCents: number | null;
+  kind: 'income' | 'expense' | null;
+  occurredAt: string | null;
+  balanceCents: number | null;
+  sourceBucket: string;
+  errors: string[];
+  warnings: string[];
+}
+
+export interface CsvImportPreviewResponse {
+  importer: string;
+  timezone: string;
+  rows: CsvImportPreviewRow[];
+}
+
+export type CsvImportMapping = {
+  delimiter?: ',' | ';' | '\t' | '|';
+  hasHeader?: boolean;
+  dateColumn: string | number;
+  amountColumn: string | number;
+  descriptionColumn: string | number;
+  balanceColumn?: string | number;
+  dateFormat?: 'DD/MM/YYYY' | 'MM/DD/YYYY' | 'YYYY-MM-DD' | 'DD.MM.YYYY' | 'AUTO';
+  decimalSeparator?: '.' | ',';
+  thousandsSeparator?: ',' | '.' | ' ' | '';
+};
+
+export interface CsvImportPreviewRequest {
+  formatPreset?: string;
+  mapping?: CsvImportMapping;
+  defaultBucket?: string;
+  qifDateFormat?: 'DD/MM/YYYY' | 'MM/DD/YYYY' | 'YY/MM/DD';
+}
+
+export interface CsvImportCommitRow {
+  rowIndex: number;
+  occurredAt: string;
+  kind: 'income' | 'expense';
+  amountCents: number;
+  description: string;
+  sourceBucket: string;
+  tags?: string[];
+}
+
+export interface CsvImportCommitRequest {
+  skipDuplicates?: boolean;
+  rows: CsvImportCommitRow[];
+}
+
 export interface BucketBreakdown {
   bucket: string;
   allocatedPercent: number;

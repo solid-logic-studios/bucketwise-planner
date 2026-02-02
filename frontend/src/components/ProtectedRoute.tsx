@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { useAuth } from '../contexts/AuthProvider.tsx';
+import { useAuth } from '../contexts/useAuth.ts';
 
 interface ProtectedRouteProps {
   fallback: ReactNode;

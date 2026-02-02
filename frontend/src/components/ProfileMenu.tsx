@@ -1,20 +1,20 @@
 import { Avatar, Group, Menu, Text, UnstyledButton } from '@mantine/core';
 import { IconLogout, IconSettings, IconUser } from '@tabler/icons-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { api } from '../api/client.js';
-import { useAuth } from '../contexts/AuthProvider.js';
-import { usePageDataContext } from '../contexts/PageContextProvider.js';
+import { useAuth } from '../contexts/useAuth.ts';
+import { usePageDataContext } from '../contexts/usePageDataContext.ts';
 
 export function ProfileMenu() {
   const { userName, logout } = useAuth();
   const { setCurrentPage } = usePageDataContext();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-  const [displayName, setDisplayName] = useState<string | null>(null);
-
-  useEffect(() => {
-    // Use context userName if available, otherwise try localStorage, fallback to 'User'
-    const nameToUse = userName || localStorage.getItem('userName') || 'User';
-    setDisplayName(nameToUse);
+  const displayName = useMemo(() => {
+    try {
+      return userName || localStorage.getItem('userName') || 'User';
+    } catch {
+      return userName || 'User';
+    }
   }, [userName]);
 
   useEffect(() => {
@@ -28,9 +28,9 @@ export function ProfileMenu() {
 
     // Listen for avatar upload events
     const handleAvatarUpdate = () => loadAvatar();
-    const handleNameUpdate = (e: Event) => {
-      const detail = (e as CustomEvent).detail;
-      if (detail?.name) setDisplayName(detail.name);
+    const handleNameUpdate = () => {
+      // AuthProvider owns persisted name; this event currently only signals avatar/name may have changed.
+      // We intentionally don't set local state here to avoid cascading renders.
     };
 
     window.addEventListener('avatar-updated', handleAvatarUpdate);

@@ -1,17 +1,17 @@
-import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
+import { useCallback, useMemo, useState, type ReactNode } from 'react';
 import { api, clearAuthTokens, setAuthTokens } from '../api/client.ts';
+import { AuthContext, type AuthContextValue } from './auth-context.ts';
 
-interface AuthContextValue {
-  isAuthenticated: boolean;
-  accessToken: string | null;
-  userEmail: string | null;
-  userName: string | null;
-  login: (email: string, password: string) => Promise<void>;
-  signup: (email: string, name: string, password: string) => Promise<void>;
-  logout: () => Promise<void>;
+interface AuthUser {
+  email: string;
+  name: string;
 }
 
-const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+interface AuthTokens {
+  accessToken: string;
+  refreshToken: string;
+  user: AuthUser;
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [accessToken, setAccessTokenState] = useState<string | null>(
@@ -26,7 +26,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const isAuthenticated = !!accessToken;
 
   const login = useCallback(async (email: string, password: string) => {
-    const result = await api.login({ email, password });
+    const result = (await api.login({ email, password })) as AuthTokens;
     setAuthTokens(result);
     setAccessTokenState(result.accessToken);
     try {
@@ -40,7 +40,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signup = useCallback(async (email: string, name: string, password: string) => {
-    const result = await api.signup({ email, name, password });
+    const result = (await api.signup({ email, name, password })) as AuthTokens;
     setAuthTokens(result);
     setAccessTokenState(result.accessToken);
     try {
@@ -77,12 +77,4 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-}
-
-export function useAuth(): AuthContextValue {
-  const ctx = useContext(AuthContext);
-  if (!ctx) {
-    throw new Error('useAuth must be used within AuthProvider');
-  }
-  return ctx;
 }

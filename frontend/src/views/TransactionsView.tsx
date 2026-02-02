@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { api } from '../api/client.js';
 import type { DebtDTO, TransactionDTO } from '../api/types.js';
 import { FortnightSelector } from '../components/FortnightSelector.js';
-import { useHelp } from '../components/HelpDrawer.js';
+import { useHelp } from '../components/help/useHelp.js';
 import {
   AddTransactionModal,
   DeleteConfirmationModal,
@@ -15,10 +15,11 @@ import {
   QuickActions,
   SkipPaymentModal,
   SummaryCards,
+  CsvImportWizardModal,
   TransactionsHeader,
   TransactionsTable,
 } from '../components/transactions/index.js';
-import { usePageDataContext } from '../contexts/PageContextProvider.js';
+import { usePageDataContext } from '../contexts/usePageDataContext.ts';
 import {
   bucketOptions,
   type BucketType,
@@ -51,6 +52,7 @@ export function TransactionsView() {
   const { state, loadTransactions } = useTransactionsData({ filters, fortnightStartDate, fortnightEndDate, pageSize, currentPage });
   const { fortnightDetail, detailLoading, detailError, loadFortnightDetail } = useFortnightDetail();
   const [addModalOpen, setAddModalOpen] = useState(false);
+  const [importModalOpen, setImportModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string>();
   const [recordAllLoading, setRecordAllLoading] = useState(false);
@@ -473,7 +475,12 @@ export function TransactionsView() {
   return (
     <Stack gap="lg" p="md">
       <Stack gap="sm">
-        <TransactionsHeader onAdd={() => setAddModalOpen(true)} onHelp={() => openHelp('transactions')} />
+        <TransactionsHeader
+          onAdd={() => setAddModalOpen(true)}
+          onHelp={() => openHelp('transactions')}
+          onImport={() => setImportModalOpen(true)}
+          importDisabled={isHistoricalFortnight}
+        />
 
         <SummaryCards
           isHistoricalFortnight={isHistoricalFortnight}
@@ -602,6 +609,13 @@ export function TransactionsView() {
         deleteError={deleteError}
         deleteSubmitting={deleteSubmitting}
         onConfirm={confirmDelete}
+      />
+
+      <CsvImportWizardModal
+        opened={importModalOpen}
+        onClose={() => setImportModalOpen(false)}
+        onCompleted={loadTransactions}
+        isHistoricalFortnight={isHistoricalFortnight}
       />
     </Stack>
   );

@@ -218,8 +218,8 @@ export class DebtPayoffCalculator extends BaseDomainService {
    * @returns Object with months to payoff and total interest paid
    */
   calculateAvalanche(
-    debts: Array<{ amount: Money; monthlyMinimum: Money; interestRate: number }>,
-    extraPayment: Money
+    _debts: Array<{ amount: Money; monthlyMinimum: Money; interestRate: number }>,
+    _extraPayment: Money
   ): { months: number; totalInterest: Money } {
     // Placeholder: implement avalanche calculation
     // Sort by interest rate descending, apply extra to highest rate
@@ -395,4 +395,3 @@ export class DebtPayoffCalculator extends BaseDomainService {
     return paidOff;
   }
 }
-

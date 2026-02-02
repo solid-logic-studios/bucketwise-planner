@@ -8,6 +8,7 @@ import { GetProfileUseCase } from '../../../application/use-cases/get-profile.us
 import { UpsertProfileUseCase } from '../../../application/use-cases/upsert-profile.use-case.js';
 import { User } from '../../../domain/model/user.entity.js';
 import type { UserRepository } from '../../../domain/repositories/user.repository.interface.js';
+import type { AuthenticatedRequest } from '../types/authenticated-request.js';
 import { BaseController } from './base.controller.js';
 
 export class ProfileController extends BaseController {
@@ -20,13 +21,13 @@ export class ProfileController extends BaseController {
   }
 
   async getProfile(req: Request, res: Response): Promise<void> {
-    const userId = (req as any).user.id;
+    const userId = (req as AuthenticatedRequest).user.id;
     const profile = await this.getProfileUseCase.execute({ userId });
     this.sendSuccess(res, profile);
   }
 
   async updateProfile(req: Request, res: Response): Promise<void> {
-    const userId = (req as any).user.id;
+    const userId = (req as AuthenticatedRequest).user.id;
     const validated = upsertProfileSchema.parse(req.body);
     const result = await this.upsertProfileUseCase.execute({
       userId,
@@ -44,7 +45,7 @@ export class ProfileController extends BaseController {
   }
 
   async getAvatar(req: Request, res: Response): Promise<void> {
-    const userId = (req as any).user.id as string;
+    const userId = (req as AuthenticatedRequest).user.id;
     const avatarDir = path.resolve(process.cwd(), 'uploads', 'avatars');
     
     // Check for any image extension
@@ -70,7 +71,7 @@ export class ProfileController extends BaseController {
         cb(null, dir);
       },
       filename: (req, file, cb) => {
-        const userId = (req as any).user.id as string;
+        const userId = (req as AuthenticatedRequest).user.id;
         const ext = path.extname(file.originalname);
         cb(null, `${userId}${ext}`);
       },
@@ -91,7 +92,7 @@ export class ProfileController extends BaseController {
   }
 
   async uploadAvatar(req: Request, res: Response): Promise<void> {
-    const userId = (req as any).user.id as string;
+    const userId = (req as AuthenticatedRequest).user.id;
     const file = req.file;
 
     if (!file) {
@@ -108,7 +109,7 @@ export class ProfileController extends BaseController {
   }
 
   async getUserProfile(req: Request, res: Response): Promise<void> {
-    const userId = (req as any).user.id as string;
+    const userId = (req as AuthenticatedRequest).user.id;
     const user = await this.userRepo.getUserById(userId);
     if (!user) {
       res.status(404).json({
@@ -121,7 +122,7 @@ export class ProfileController extends BaseController {
   }
 
   async updateUserProfile(req: Request, res: Response): Promise<void> {
-    const userId = (req as any).user.id as string;
+    const userId = (req as AuthenticatedRequest).user.id;
     const updateSchema = z.object({ name: z.string().min(1).max(256) });
     const validated = updateSchema.parse(req.body);
     

@@ -6,6 +6,7 @@ import { ListForthnightsUseCase } from '../../../application/use-cases/list-fort
 import { ListSkippedDebtPaymentsUseCase } from '../../../application/use-cases/list-skipped-debt-payments.use-case.js';
 import { ListTransactionsUseCase } from '../../../application/use-cases/list-transactions.use-case.js';
 import { ValidationError } from '../../../domain/exceptions/validation-error.js';
+import type { AuthenticatedRequest } from '../types/authenticated-request.js';
 import { toSingleString } from '../utils/request-helpers.js';
 import { BaseController } from './base.controller.js';
 
@@ -29,7 +30,7 @@ export class FortnightController extends BaseController {
    * Create a new fortnight period with allocations.
    */
   async createFortnight(req: Request, res: Response): Promise<void> {
-    const userId = (req as any).user.id;
+    const userId = (req as AuthenticatedRequest).user.id;
     const validated = createFortnightSchema.parse(req.body);
 
     const result = await this.createFortnightUseCase.execute({
@@ -47,7 +48,7 @@ export class FortnightController extends BaseController {
    * List all fortnights sorted by date (newest first).
    */
   async listFortnights(req: Request, res: Response): Promise<void> {
-    const userId = (req as any).user.id;
+    const userId = (req as AuthenticatedRequest).user.id;
     const result = await this.listForthnightsUseCase.execute({ userId });
     this.sendSuccess(res, result);
   }
@@ -57,7 +58,7 @@ export class FortnightController extends BaseController {
    * Get detailed fortnight summary with bucket breakdowns.
    */
   async getFortnight(req: Request, res: Response): Promise<void> {
-    const userId = (req as any).user.id;
+    const userId = (req as AuthenticatedRequest).user.id;
     const id = toSingleString(req.params.id);
 
     if (!id) {
@@ -77,7 +78,7 @@ export class FortnightController extends BaseController {
    * List skipped debt payments for the given fortnight.
    */
   async listSkippedDebtPayments(req: Request, res: Response): Promise<void> {
-    const userId = (req as any).user.id;
+    const userId = (req as AuthenticatedRequest).user.id;
     const id = toSingleString(req.params.id);
 
     if (!id) {
@@ -95,7 +96,7 @@ export class FortnightController extends BaseController {
    * Query params: ?bucket=DailyExpenses&fortnightId=fortnight-1&startDate=2026-01-03&endDate=2026-01-17&kind=expense&limit=50&offset=0
    */
   async listTransactions(req: Request, res: Response): Promise<void> {
-    const userId = (req as any).user.id;
+    const userId = (req as AuthenticatedRequest).user.id;
     const bucket = req.query.bucket as string | undefined;
     const fortnightId = req.query.fortnightId as string | undefined;
     const kind = req.query.kind as string | undefined;
@@ -126,4 +127,3 @@ export class FortnightController extends BaseController {
     this.sendSuccess(res, result);
   }
 }
-

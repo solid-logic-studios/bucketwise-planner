@@ -12,27 +12,11 @@ import {
 } from '@mantine/core';
 import { IconSearch, IconX } from '@tabler/icons-react';
 import type { ReactNode } from 'react';
-import { createContext, useContext, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { helpContent } from '../constants/helpContent.js';
 import { useThemeColors } from '../hooks/useThemeColors.js';
 import type { HelpPageContent, HelpPageKey } from '../types/help.js';
-
-interface HelpContextValue {
-  openHelp: (key: HelpPageKey) => void;
-  closeHelp: () => void;
-  isOpen: boolean;
-  currentPage: HelpPageKey;
-}
-
-const HelpContext = createContext<HelpContextValue | undefined>(undefined);
-
-export function useHelp(): HelpContextValue {
-  const ctx = useContext(HelpContext);
-  if (!ctx) {
-    throw new Error('useHelp must be used within HelpProvider');
-  }
-  return ctx;
-}
+import { HelpContext } from './help/help-context.js';
 
 export function HelpProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);

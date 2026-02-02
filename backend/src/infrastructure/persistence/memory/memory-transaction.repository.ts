@@ -10,7 +10,7 @@ export class MemoryTransactionRepository
   extends InMemoryRepository<Transaction>
   implements TransactionRepository
 {
-  async findByFortnightId(userId: string, _fortnightId: string): Promise<Transaction[]> {
+  async findByFortnightId(_userId: string, _fortnightId: string): Promise<Transaction[]> {
     // TODO: implement once Fortnight aggregate is fully defined
     return [];
   }

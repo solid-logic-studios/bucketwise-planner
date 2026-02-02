@@ -20,7 +20,7 @@ import remarkGfm from 'remark-gfm';
 import { useChat } from '../hooks/useChat';
 import { usePageContext } from '../hooks/usePageContext';
 import { showSuccess } from '../utils/notifications';
-import { useChatContext } from './ChatProvider';
+import { useChatContext } from './chat/useChatContext.js';
 import { TokenUsageIndicator } from './TokenUsageIndicator';
 
 /**
@@ -63,15 +63,12 @@ export function ChatWidget() {
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('[ChatWidget] handleSubmit called', { inputValue, isLoading });
     if (!inputValue.trim() || isLoading) {
-      console.log('[ChatWidget] Skipping submit - empty or loading');
       return;
     }
 
     const messageText = inputValue;
     setInputValue(''); // Clear input immediately
-    console.log('[ChatWidget] Calling sendMessage with:', messageText);
     await sendMessage(messageText, pageContext);
   }, [inputValue, isLoading, sendMessage, pageContext]);
 

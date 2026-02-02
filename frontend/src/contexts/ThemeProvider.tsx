@@ -1,5 +1,5 @@
 import { useMantineColorScheme } from '@mantine/core';
-import { useEffect, useLayoutEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 /**
  * Hook to manage theme state and persistence.
@@ -10,15 +10,20 @@ export function useTheme() {
     keepTransitions: true,
   });
 
+  const hasInitialized = useRef(false);
+
   // Initialize from localStorage on mount (one-time)
-  useLayoutEffect(() => {
+  useEffect(() => {
+    if (hasInitialized.current) return;
+    hasInitialized.current = true;
+
     const stored = localStorage.getItem('bucketwise-theme');
     if (stored === 'light' || stored === 'dark') {
       if (stored !== colorScheme) {
         setColorScheme(stored);
       }
     }
-  }, []);
+  }, [colorScheme, setColorScheme]);
 
   // Sync localStorage whenever colorScheme changes (e.g., user toggles theme)
   useEffect(() => {

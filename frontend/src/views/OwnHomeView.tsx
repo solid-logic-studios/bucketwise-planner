@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { api } from '../api/client';
 import type { MortgageDTO, MortgageOverpaymentPlanDTO, ProfileDTO } from '../api/types';
 import { ErrorAlert } from '../components/ErrorAlert';
-import { useHelp } from '../components/HelpDrawer';
+import { useHelp } from '../components/help/useHelp.js';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { MortgageOverpaymentChart } from '../components/charts/MortgageOverpaymentChart.js';
 import { formatCurrency, formatPercent } from '../utils/formatters';
