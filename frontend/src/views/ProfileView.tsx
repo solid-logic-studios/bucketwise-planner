@@ -15,7 +15,13 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useHotkeys } from '@mantine/hooks';
-import { IconDeviceFloppy, IconPlus, IconQuestionMark, IconTrash, IconUpload } from '@tabler/icons-react';
+import {
+  IconDeviceFloppy,
+  IconPlus,
+  IconQuestionMark,
+  IconTrash,
+  IconUpload,
+} from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
 import { api } from '../api/client.js';
 import type { ProfileDTO } from '../api/types.js';
@@ -98,9 +104,7 @@ export function ProfileView() {
   const [editingName, setEditingName] = useState(false);
   const [tempName, setTempName] = useState('');
   const { openHelp } = useHelp();
-  useHotkeys([
-    ['mod+/', () => openHelp('profile')],
-  ]);
+  useHotkeys([['mod+/', () => openHelp('profile')]]);
 
   const form = useForm<ProfileFormValues>({
     initialValues: {
@@ -111,7 +115,8 @@ export function ProfileView() {
     },
     validate: {
       fortnightlyIncomeDollars: (value) => (value < 0 ? 'Income must be zero or greater' : null),
-      defaultFireExtinguisherPercent: (value) => (value < 0 || value > 100 ? 'Percent must be between 0 and 100' : null),
+      defaultFireExtinguisherPercent: (value) =>
+        value < 0 || value > 100 ? 'Percent must be between 0 and 100' : null,
       timezone: (value) => (!value ? 'Timezone is required' : null),
       fixedExpenses: {
         name: (value) => (!value.trim() ? 'Name is required' : null),
@@ -159,9 +164,10 @@ export function ProfileView() {
       });
 
     return () => {
-        cancelled = true;
+      cancelled = true;
     };
-  }, [form]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleAddFixedExpense = () => {
     form.insertListItem('fixedExpenses', {
@@ -237,7 +243,7 @@ export function ProfileView() {
                 }
               },
               'image/jpeg',
-              0.8
+              0.8,
             );
           };
           img.onerror = () => reject(new Error('Failed to load image'));
@@ -280,7 +286,9 @@ export function ProfileView() {
   }
 
   const computedFireExtinguisherCents = Math.floor(
-    Math.max(form.values.fortnightlyIncomeDollars, 0) * 100 * (Math.max(form.values.defaultFireExtinguisherPercent, 0) / 100)
+    Math.max(form.values.fortnightlyIncomeDollars, 0) *
+      100 *
+      (Math.max(form.values.defaultFireExtinguisherPercent, 0) / 100),
   );
 
   return (
@@ -294,7 +302,11 @@ export function ProfileView() {
             </ActionIcon>
           </Tooltip>
         </Group>
-        <Button leftSection={<IconDeviceFloppy size={16} />} loading={saving} onClick={() => form.onSubmit(handleSubmit)()}>
+        <Button
+          leftSection={<IconDeviceFloppy size={16} />}
+          loading={saving}
+          onClick={() => form.onSubmit(handleSubmit)()}
+        >
           Save Profile
         </Button>
       </Group>
@@ -312,8 +324,17 @@ export function ProfileView() {
             <Stack gap="xs" style={{ flex: 1 }}>
               {!editingName ? (
                 <Group>
-                  <Text size="lg" fw={600}>{userName || 'User'}</Text>
-                  <Button size="xs" variant="light" onClick={() => { setEditingName(true); setTempName(userName); }}>
+                  <Text size="lg" fw={600}>
+                    {userName || 'User'}
+                  </Text>
+                  <Button
+                    size="xs"
+                    variant="light"
+                    onClick={() => {
+                      setEditingName(true);
+                      setTempName(userName);
+                    }}
+                  >
                     Edit
                   </Button>
                 </Group>
@@ -325,11 +346,17 @@ export function ProfileView() {
                     placeholder="Your name"
                     style={{ flex: 1 }}
                   />
-                  <Button size="xs" onClick={handleSaveName}>Save</Button>
-                  <Button size="xs" variant="subtle" onClick={() => setEditingName(false)}>Cancel</Button>
+                  <Button size="xs" onClick={handleSaveName}>
+                    Save
+                  </Button>
+                  <Button size="xs" variant="subtle" onClick={() => setEditingName(false)}>
+                    Cancel
+                  </Button>
                 </Group>
               )}
-              <Text size="sm" c="dimmed">{userEmail}</Text>
+              <Text size="sm" c="dimmed">
+                {userEmail}
+              </Text>
               <FileInput
                 label="Upload avatar"
                 description="Images are automatically resized to 256x256"
@@ -339,7 +366,12 @@ export function ProfileView() {
                 onChange={setAvatarFile}
                 clearable
               />
-              <Button size="xs" leftSection={<IconUpload size={16} />} onClick={handleUploadAvatar} disabled={!avatarFile}>
+              <Button
+                size="xs"
+                leftSection={<IconUpload size={16} />}
+                onClick={handleUploadAvatar}
+                disabled={!avatarFile}
+              >
                 Upload Avatar
               </Button>
             </Stack>
@@ -351,125 +383,129 @@ export function ProfileView() {
       <Card shadow="sm" padding="lg" radius="md" withBorder>
         <Stack gap="md">
           <Title order={4}>Budget Configuration</Title>
-        <form onSubmit={form.onSubmit(handleSubmit)}>
-          <Stack gap="md">
-            <NumberInput
-              label="Fortnightly Income (AUD)"
-              description="Your typical take-home amount every two weeks"
-              min={0}
-              decimalScale={2}
-              fixedDecimalScale
-              prefix="$"
-              required
-              {...form.getInputProps('fortnightlyIncomeDollars')}
-            />
+          <form onSubmit={form.onSubmit(handleSubmit)}>
+            <Stack gap="md">
+              <NumberInput
+                label="Fortnightly Income (AUD)"
+                description="Your typical take-home amount every two weeks"
+                min={0}
+                decimalScale={2}
+                fixedDecimalScale
+                prefix="$"
+                required
+                {...form.getInputProps('fortnightlyIncomeDollars')}
+              />
 
-            <NumberInput
-              label="Default Fire Extinguisher (%)"
-              description="Percent of your fortnightly income allocated to fire extinguisher"
-              min={0}
-              max={100}
-              decimalScale={2}
-              fixedDecimalScale
-              suffix="%"
-              required
-              {...form.getInputProps('defaultFireExtinguisherPercent')}
-            />
+              <NumberInput
+                label="Default Fire Extinguisher (%)"
+                description="Percent of your fortnightly income allocated to fire extinguisher"
+                min={0}
+                max={100}
+                decimalScale={2}
+                fixedDecimalScale
+                suffix="%"
+                required
+                {...form.getInputProps('defaultFireExtinguisherPercent')}
+              />
 
-            <Text size="sm" c="dimmed">
-              ≈ {formatCurrency(computedFireExtinguisherCents)} per fortnight at this percent
-            </Text>
+              <Text size="sm" c="dimmed">
+                ≈ {formatCurrency(computedFireExtinguisherCents)} per fortnight at this percent
+              </Text>
               {/* TODO: This should not be hardcoded, should pull from a source or static file */}
-            <Select
-              label="Timezone"
-              description="Your local timezone for accurate transaction date boundaries"
-              required
-              searchable
-              data={[
-                { value: 'UTC', label: 'UTC (Coordinated Universal Time)' },
-                { value: 'Australia/Melbourne', label: 'Australia/Melbourne (AEDT/AEST)' },
-                { value: 'Australia/Sydney', label: 'Australia/Sydney (AEDT/AEST)' },
-                { value: 'Australia/Brisbane', label: 'Australia/Brisbane (AEST)' },
-                { value: 'Australia/Perth', label: 'Australia/Perth (AWST)' },
-                { value: 'Europe/Copenhagen', label: 'Europe/Copenhagen (CEST/CET)' },
-                { value: 'Europe/London', label: 'Europe/London (BST/GMT)' },
-                { value: 'Europe/Paris', label: 'Europe/Paris (CEST/CET)' },
-                { value: 'America/New_York', label: 'America/New_York (EDT/EST)' },
-                { value: 'America/Los_Angeles', label: 'America/Los_Angeles (PDT/PST)' },
-                { value: 'America/Chicago', label: 'America/Chicago (CDT/CST)' },
-                { value: 'Asia/Tokyo', label: 'Asia/Tokyo (JST)' },
-                { value: 'Asia/Singapore', label: 'Asia/Singapore (SGT)' },
-                { value: 'Pacific/Auckland', label: 'Pacific/Auckland (NZDT/NZST)' },
-              ]}
-              {...form.getInputProps('timezone')}
-            />
+              <Select
+                label="Timezone"
+                description="Your local timezone for accurate transaction date boundaries"
+                required
+                searchable
+                data={[
+                  { value: 'UTC', label: 'UTC (Coordinated Universal Time)' },
+                  { value: 'Australia/Melbourne', label: 'Australia/Melbourne (AEDT/AEST)' },
+                  { value: 'Australia/Sydney', label: 'Australia/Sydney (AEDT/AEST)' },
+                  { value: 'Australia/Brisbane', label: 'Australia/Brisbane (AEST)' },
+                  { value: 'Australia/Perth', label: 'Australia/Perth (AWST)' },
+                  { value: 'Europe/Copenhagen', label: 'Europe/Copenhagen (CEST/CET)' },
+                  { value: 'Europe/London', label: 'Europe/London (BST/GMT)' },
+                  { value: 'Europe/Paris', label: 'Europe/Paris (CEST/CET)' },
+                  { value: 'America/New_York', label: 'America/New_York (EDT/EST)' },
+                  { value: 'America/Los_Angeles', label: 'America/Los_Angeles (PDT/PST)' },
+                  { value: 'America/Chicago', label: 'America/Chicago (CDT/CST)' },
+                  { value: 'Asia/Tokyo', label: 'Asia/Tokyo (JST)' },
+                  { value: 'Asia/Singapore', label: 'Asia/Singapore (SGT)' },
+                  { value: 'Pacific/Auckland', label: 'Pacific/Auckland (NZDT/NZST)' },
+                ]}
+                {...form.getInputProps('timezone')}
+              />
 
-            <Stack gap="sm">
-              <Group justify="space-between" align="center">
-                <Text fw={600}>Fixed Expenses</Text>
-                <Button leftSection={<IconPlus size={16} />} variant="light" onClick={handleAddFixedExpense}>
-                  Add Expense
+              <Stack gap="sm">
+                <Group justify="space-between" align="center">
+                  <Text fw={600}>Fixed Expenses</Text>
+                  <Button
+                    leftSection={<IconPlus size={16} />}
+                    variant="light"
+                    onClick={handleAddFixedExpense}
+                  >
+                    Add Expense
+                  </Button>
+                </Group>
+
+                {form.values.fixedExpenses.length === 0 && (
+                  <Text size="sm" c="dimmed">
+                    No fixed expenses yet. Add your recurring bills to see them here.
+                  </Text>
+                )}
+
+                {form.values.fixedExpenses.map((expense, index) => (
+                  <Card key={expense.id ?? index} withBorder radius="md" shadow="xs" padding="md">
+                    <Stack gap="sm">
+                      <Group justify="space-between" align="flex-start">
+                        <Text fw={600}>Expense {index + 1}</Text>
+                        <ActionIcon
+                          variant="subtle"
+                          color="red"
+                          onClick={() => handleRemoveFixedExpense(index)}
+                          aria-label="Remove expense"
+                        >
+                          <IconTrash size={16} />
+                        </ActionIcon>
+                      </Group>
+
+                      <TextInput
+                        label="Name"
+                        placeholder="e.g., Rent"
+                        required
+                        {...form.getInputProps(`fixedExpenses.${index}.name`)}
+                      />
+
+                      <Group grow align="flex-start">
+                        <Select
+                          label="Bucket"
+                          required
+                          data={bucketOptions.map((bucket) => ({ value: bucket, label: bucket }))}
+                          {...form.getInputProps(`fixedExpenses.${index}.bucket`)}
+                        />
+
+                        <NumberInput
+                          label="Amount (AUD)"
+                          min={0}
+                          decimalScale={2}
+                          fixedDecimalScale
+                          prefix="$"
+                          required
+                          {...form.getInputProps(`fixedExpenses.${index}.amountDollars`)}
+                        />
+                      </Group>
+                    </Stack>
+                  </Card>
+                ))}
+              </Stack>
+
+              <Group justify="flex-end">
+                <Button type="submit" loading={saving} leftSection={<IconDeviceFloppy size={16} />}>
+                  Save Profile
                 </Button>
               </Group>
-
-              {form.values.fixedExpenses.length === 0 && (
-                <Text size="sm" c="dimmed">
-                  No fixed expenses yet. Add your recurring bills to see them here.
-                </Text>
-              )}
-
-              {form.values.fixedExpenses.map((expense, index) => (
-                <Card key={expense.id ?? index} withBorder radius="md" shadow="xs" padding="md">
-                  <Stack gap="sm">
-                    <Group justify="space-between" align="flex-start">
-                      <Text fw={600}>Expense {index + 1}</Text>
-                      <ActionIcon
-                        variant="subtle"
-                        color="red"
-                        onClick={() => handleRemoveFixedExpense(index)}
-                        aria-label="Remove expense"
-                      >
-                        <IconTrash size={16} />
-                      </ActionIcon>
-                    </Group>
-
-                    <TextInput
-                      label="Name"
-                      placeholder="e.g., Rent"
-                      required
-                      {...form.getInputProps(`fixedExpenses.${index}.name`)}
-                    />
-
-                    <Group grow align="flex-start">
-                      <Select
-                        label="Bucket"
-                        required
-                        data={bucketOptions.map((bucket) => ({ value: bucket, label: bucket }))}
-                        {...form.getInputProps(`fixedExpenses.${index}.bucket`)}
-                      />
-
-                      <NumberInput
-                        label="Amount (AUD)"
-                        min={0}
-                        decimalScale={2}
-                        fixedDecimalScale
-                        prefix="$"
-                        required
-                        {...form.getInputProps(`fixedExpenses.${index}.amountDollars`)}
-                      />
-                    </Group>
-                  </Stack>
-                </Card>
-              ))}
             </Stack>
-
-            <Group justify="flex-end">
-              <Button type="submit" loading={saving} leftSection={<IconDeviceFloppy size={16} />}>
-                Save Profile
-              </Button>
-            </Group>
-          </Stack>
-        </form>
+          </form>
         </Stack>
       </Card>
     </Stack>
