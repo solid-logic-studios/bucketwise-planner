@@ -17,8 +17,6 @@
     "noUncheckedSideEffectImports": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
-    "esModuleInterop": false,
-    "ignoreDeprecations": "5.0",
     "allowImportingTsExtensions": false,
     "noEmit": false,
     "sourceMap": true,
