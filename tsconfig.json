@@ -18,15 +18,13 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "esModuleInterop": false,
+    "ignoreDeprecations": "5.0",
     "allowImportingTsExtensions": false,
     "noEmit": false,
     "sourceMap": true,
     "declaration": true,
     "declarationMap": true
   },
-  "include": [
-    "backend/src/**/*.ts",
-    "backend/tests/**/*.ts"
-  ],
+  "include": ["backend/src/**/*.ts", "backend/tests/**/*.ts"],
   "exclude": ["node_modules", "dist", "frontend"]
 }
