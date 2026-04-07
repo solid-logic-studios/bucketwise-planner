@@ -5,6 +5,19 @@ All notable changes to Bucketwise Planner will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.4] - 2026-04-08
+
+### Fixed
+
+- Profile page: salary and fixed expenses no longer revert on every keypress — `useEffect` dependency `[form]` replaced with `[]` to prevent Mantine `useForm` reference churn from triggering server re-fetches that overwrite in-progress edits (closes #24)
+- Profile data isolation: `budget_profiles` now uses `user_id` as the primary key so each user's profile is always written to and read from their own row; previously all users shared `id='profile'`, causing multi-user data corruption
+
+### Migration Notes
+
+1. Migration `004-budget-profiles-user-id-primary-key.sql` runs automatically on backend startup
+2. The migration deletes any orphaned rows (rows without a matching `users` record), promotes `user_id` to `PRIMARY KEY`, and drops the old `id TEXT` column — **back up your database before upgrading**
+3. Existing profile data for authenticated users is preserved as long as their `user_id` FK reference is intact
+
 ## [0.4.3] - 2026-02-12
 
 ### Added
@@ -218,10 +231,12 @@ Learn more: https://www.barefootinvestor.com/
 
 ---
 
-[0.3.0]: https://github.com/PaulAtkins88/bucketwise-planner/releases/tag/v0.3.0
-[0.3.1]: https://github.com/PaulAtkins88/bucketwise-planner/releases/tag/v0.3.1
-[0.4.0]: https://github.com/PaulAtkins88/bucketwise-planner/releases/tag/v0.4.0
-[0.4.1]: https://github.com/PaulAtkins88/bucketwise-planner/releases/tag/v0.4.1
-[0.4.2]: https://github.com/PaulAtkins88/bucketwise-planner/releases/tag/v0.4.2
-[0.2.0]: https://github.com/PaulAtkins88/bucketwise-planner/releases/tag/v0.2.0
-[0.1.0]: https://github.com/PaulAtkins88/bucketwise-planner/releases/tag/v0.1.0
+[0.4.4]: https://github.com/solid-logic-studios/bucketwise-planner/releases/tag/v0.4.4
+[0.4.3]: https://github.com/solid-logic-studios/bucketwise-planner/releases/tag/v0.4.3
+[0.4.2]: https://github.com/solid-logic-studios/bucketwise-planner/releases/tag/v0.4.2
+[0.4.1]: https://github.com/solid-logic-studios/bucketwise-planner/releases/tag/v0.4.1
+[0.4.0]: https://github.com/solid-logic-studios/bucketwise-planner/releases/tag/v0.4.0
+[0.3.1]: https://github.com/solid-logic-studios/bucketwise-planner/releases/tag/v0.3.1
+[0.3.0]: https://github.com/solid-logic-studios/bucketwise-planner/releases/tag/v0.3.0
+[0.2.0]: https://github.com/solid-logic-studios/bucketwise-planner/releases/tag/v0.2.0
+[0.1.0]: https://github.com/solid-logic-studios/bucketwise-planner/releases/tag/v0.1.0

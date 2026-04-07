@@ -1,7 +1,7 @@
 {
   "name": "budget_app",
   "private": true,
-  "version": "0.4.3",
+  "version": "0.4.4",
   "description": "Workspace root for backend and frontend packages",
   "packageManager": "pnpm@10.25.0",
   "scripts": {

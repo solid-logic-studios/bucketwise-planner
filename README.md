@@ -1,9 +1,9 @@
 # Bucketwise Planner
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Tests](https://img.shields.io/badge/tests-54%20passing-brightgreen)](https://github.com/PaulAtkins88/bucketwise-planner)
+[![Tests](https://img.shields.io/badge/tests-99%20passing-brightgreen)](https://github.com/solid-logic-studios/bucketwise-planner)
 [![Security](https://img.shields.io/badge/security-SECURITY.md-blue)](SECURITY.md)
-[![Release](https://img.shields.io/badge/release-v0.4.2-blue)](https://github.com/PaulAtkins88/bucketwise-planner/releases)
+[![Release](https://img.shields.io/badge/release-v0.4.4-blue)](https://github.com/solid-logic-studios/bucketwise-planner/releases)
 
 Multi-user budgeting app implementing Scott Pape's Barefoot Investor methodology. Fortnightly budgeting with bucket allocations (60/10/10/20), automated debt snowball payoff, transaction tracking, and optional AI financial advisor.
 
@@ -47,7 +47,7 @@ _This is a community-driven open-source implementation, not affiliated with or e
   - Infrastructure Layer: PostgreSQL repositories, in-memory adapters
   - Presentation Layer: HTTP controllers, middleware, routes
 - **Optional AI**: Google Gen AI SDK (`@google/genai` v1.34.0) with Gemini 2.5 Flash (disabled by default)
-- **Testing**: Vitest (54+ passing tests)
+- **Testing**: Vitest (99+ passing tests)
 
 ### Frontend
 
@@ -154,7 +154,7 @@ volumes:
 
 ```bash
 # Clone and start
-git clone https://github.com/PaulAtkins88/bucketwise-planner.git
+git clone https://github.com/solid-logic-studios/bucketwise-planner.git
 cd bucketwise-planner
 cp .env.example .env
 # Edit .env with your secrets (JWT_SECRET, ADMIN_SECRET, etc.)
@@ -222,6 +222,10 @@ cd backend && pnpm run db:ensure-schema
 psql "$PG_CONNECTION_STRING" < backend/migrations/003-backfill-fortnight-timezone-bounds.sql
 # or run the helper script:
 pnpm --filter backend db:backfill-fortnight-bounds
+
+# Migration 004 (if upgrading from <= 0.4.3): promotes user_id to primary key in budget_profiles
+# This runs automatically on startup — back up your database first if you have profile data
+psql "$PG_CONNECTION_STRING" < backend/migrations/004-budget-profiles-user-id-primary-key.sql
 ```
 
 Linux (apt-based):
@@ -252,6 +256,10 @@ cd backend && pnpm run db:ensure-schema
 psql "$PG_CONNECTION_STRING" < backend/migrations/003-backfill-fortnight-timezone-bounds.sql
 # or run the helper script:
 pnpm --filter backend db:backfill-fortnight-bounds
+
+# Migration 004 (if upgrading from <= 0.4.3): promotes user_id to primary key in budget_profiles
+# This runs automatically on startup — back up your database first if you have profile data
+psql "$PG_CONNECTION_STRING" < backend/migrations/004-budget-profiles-user-id-primary-key.sql
 ```
 
 Notes:
@@ -303,7 +311,7 @@ Notes:
 
 ## 🧪 Testing
 
-- **54+ passing tests** (Vitest framework)
+- **99+ passing tests** (Vitest framework)
 - **Unit tests:** Domain entities, value objects, use cases
 - **Integration tests:** API endpoints with test database
 - **Coverage:** Maintained >80% for critical paths
@@ -432,8 +440,8 @@ MIT License — Free for personal and commercial use. See [LICENSE](LICENSE) for
 ## 🆘 Support & Community
 
 - 📖 **Documentation:** [docs/](docs/), [README files](backend/README.md)
-- 💬 **Questions:** [GitHub Discussions](https://github.com/PaulAtkins88/bucketwise-planner/discussions)
-- 🐛 **Bug Reports:** [GitHub Issues](https://github.com/PaulAtkins88/bucketwise-planner/issues)
+- 💬 **Questions:** [GitHub Discussions](https://github.com/solid-logic-studios/bucketwise-planner/discussions)
+- 🐛 **Bug Reports:** [GitHub Issues](https://github.com/solid-logic-studios/bucketwise-planner/issues)
 - 🆘 **Help:** [SUPPORT.md](SUPPORT.md) and [docs/FAQ.md](docs/FAQ.md)
 
 ## 🌟 Roadmap
