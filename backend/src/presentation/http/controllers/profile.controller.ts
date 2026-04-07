@@ -3,9 +3,11 @@ import multer from 'multer';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { z } from 'zod';
-import { upsertProfileSchema } from '../../../application/dtos/schemas/profile.schema.js';
 import { GetProfileUseCase } from '../../../application/use-cases/get-profile.use-case.js';
-import { UpsertProfileUseCase } from '../../../application/use-cases/upsert-profile.use-case.js';
+import {
+  UpsertProfileUseCase,
+  type UpsertProfileInput,
+} from '../../../application/use-cases/upsert-profile.use-case.js';
 import { User } from '../../../domain/model/user.entity.js';
 import type { UserRepository } from '../../../domain/repositories/user.repository.interface.js';
 import type { AuthenticatedRequest } from '../types/authenticated-request.js';
@@ -15,7 +17,7 @@ export class ProfileController extends BaseController {
   constructor(
     private readonly getProfileUseCase: GetProfileUseCase,
     private readonly upsertProfileUseCase: UpsertProfileUseCase,
-    private readonly userRepo: UserRepository
+    private readonly userRepo: UserRepository,
   ) {
     super();
   }
@@ -28,18 +30,19 @@ export class ProfileController extends BaseController {
 
   async updateProfile(req: Request, res: Response): Promise<void> {
     const userId = (req as AuthenticatedRequest).user.id;
-    const validated = upsertProfileSchema.parse(req.body);
+    // req.body has already been validated and defaulted by validationMiddleware(upsertProfileSchema)
+    const body = req.body as Omit<UpsertProfileInput, 'userId'>;
     const result = await this.upsertProfileUseCase.execute({
       userId,
-      fortnightlyIncomeCents: validated.fortnightlyIncomeCents,
-      defaultFireExtinguisherPercent: validated.defaultFireExtinguisherPercent,
-      fixedExpenses: validated.fixedExpenses.map(fx => ({
+      fortnightlyIncomeCents: body.fortnightlyIncomeCents,
+      defaultFireExtinguisherPercent: body.defaultFireExtinguisherPercent,
+      fixedExpenses: body.fixedExpenses.map((fx) => ({
         id: fx.id,
         name: fx.name,
         bucket: fx.bucket,
         amountCents: fx.amountCents,
       })),
-      timezone: validated.timezone,
+      timezone: body.timezone ?? 'UTC',
     });
     this.sendSuccess(res, result);
   }
@@ -47,7 +50,7 @@ export class ProfileController extends BaseController {
   async getAvatar(req: Request, res: Response): Promise<void> {
     const userId = (req as AuthenticatedRequest).user.id;
     const avatarDir = path.resolve(process.cwd(), 'uploads', 'avatars');
-    
+
     // Check for any image extension
     const extensions = ['.jpg', '.jpeg', '.png'];
     for (const ext of extensions) {
@@ -58,7 +61,7 @@ export class ProfileController extends BaseController {
         return;
       }
     }
-    
+
     this.sendSuccess(res, { url: null });
   }
 
@@ -125,7 +128,7 @@ export class ProfileController extends BaseController {
     const userId = (req as AuthenticatedRequest).user.id;
     const updateSchema = z.object({ name: z.string().min(1).max(256) });
     const validated = updateSchema.parse(req.body);
-    
+
     const user = await this.userRepo.getUserById(userId);
     if (!user) {
       res.status(404).json({
