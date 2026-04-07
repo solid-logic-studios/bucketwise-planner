@@ -29,6 +29,7 @@ import { ErrorAlert } from '../components/ErrorAlert.js';
 import { useHelp } from '../components/help/useHelp.js';
 import { LoadingSpinner } from '../components/LoadingSpinner.js';
 import { formatCurrency } from '../utils/formatters.js';
+import { generateUUID } from '../utils/uuid.js';
 
 const bucketOptions = [
   'Daily Expenses',
@@ -171,7 +172,7 @@ export function ProfileView() {
 
   const handleAddFixedExpense = () => {
     form.insertListItem('fixedExpenses', {
-      id: crypto.randomUUID(),
+      id: generateUUID(),
       name: '',
       bucket: bucketOptions[0],
       amountDollars: 0,
