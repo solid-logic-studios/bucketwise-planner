@@ -34,11 +34,11 @@ export class UpsertProfileUseCase extends UseCase<UpsertProfileInput, ProfileDTO
     }));
 
     const profile = new BudgetProfile(
-      'profile',
+      input.userId,
       new Money(input.fortnightlyIncomeCents),
       Math.round(input.defaultFireExtinguisherPercent * 100),
       fixedExpenses,
-      input.timezone || 'UTC'
+      input.timezone || 'UTC',
     );
 
     await this.repo.saveProfile(input.userId, profile);

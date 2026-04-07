@@ -89,7 +89,7 @@ export async function ensureSchema(pool: Pool): Promise<void> {
       ON debts (debt_type);
 
     CREATE TABLE IF NOT EXISTS budget_profiles (
-      id TEXT PRIMARY KEY,
+      user_id UUID PRIMARY KEY REFERENCES users(id),
       fortnightly_income_cents INTEGER NOT NULL DEFAULT 0,
       default_fire_extinguisher_cents INTEGER NOT NULL DEFAULT 0,
       default_fire_extinguisher_bps INTEGER NOT NULL DEFAULT 0,
@@ -130,7 +130,6 @@ export async function ensureSchema(pool: Pool): Promise<void> {
     ALTER TABLE transactions ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES users(id);
     ALTER TABLE fortnight_snapshots ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES users(id);
     ALTER TABLE debts ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES users(id);
-    ALTER TABLE budget_profiles ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES users(id);
     ALTER TABLE skipped_debt_payments ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES users(id);
     ALTER TABLE debt_balance_adjustments ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES users(id);
 
@@ -138,7 +137,6 @@ export async function ensureSchema(pool: Pool): Promise<void> {
     CREATE INDEX IF NOT EXISTS idx_transactions_user_id ON transactions(user_id);
     CREATE INDEX IF NOT EXISTS idx_fortnight_snapshots_user_id ON fortnight_snapshots(user_id);
     CREATE INDEX IF NOT EXISTS idx_debts_user_id ON debts(user_id);
-    CREATE INDEX IF NOT EXISTS idx_budget_profiles_user_id ON budget_profiles(user_id);
     CREATE INDEX IF NOT EXISTS idx_skipped_debt_payments_user_id ON skipped_debt_payments(user_id);
     CREATE INDEX IF NOT EXISTS idx_debt_balance_adjustments_user_id ON debt_balance_adjustments(user_id);
     CREATE INDEX IF NOT EXISTS idx_debt_balance_adjustments_user_debt_date

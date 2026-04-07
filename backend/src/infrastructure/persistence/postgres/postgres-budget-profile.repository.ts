@@ -5,10 +5,8 @@ import { BudgetProfile, type FixedExpense } from '../../../domain/model/budget-p
 import { Money } from '../../../domain/model/money.js';
 import type { BudgetProfileRepository } from '../../../domain/repositories/budget-profile.repository.interface.js';
 
-const PROFILE_ID = 'profile';
-
 type ProfileRow = {
-  id: string;
+  user_id: string;
   fortnightly_income_cents: number;
   default_fire_extinguisher_cents?: number;
   default_fire_extinguisher_bps?: number;
@@ -23,15 +21,13 @@ type ProfileRow = {
   updated_at: string;
 };
 
-export class PostgresBudgetProfileRepository
-  implements BudgetProfileRepository
-{
+export class PostgresBudgetProfileRepository implements BudgetProfileRepository {
   constructor(private readonly pool: Pool) {}
 
   async getProfile(userId: string): Promise<BudgetProfile | null> {
     const result = await this.pool.query<ProfileRow>(
       'SELECT * FROM budget_profiles WHERE user_id = $1 LIMIT 1',
-      [userId]
+      [userId],
     );
     if (result.rowCount === 0 || !result.rows[0]) {
       return null;
@@ -49,9 +45,9 @@ export class PostgresBudgetProfileRepository
 
     const query = `
       INSERT INTO budget_profiles (
-        id, user_id, fortnightly_income_cents, default_fire_extinguisher_cents, default_fire_extinguisher_bps, fixed_expenses, timezone, created_at, updated_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), NOW())
-      ON CONFLICT (id)
+        user_id, fortnightly_income_cents, default_fire_extinguisher_cents, default_fire_extinguisher_bps, fixed_expenses, timezone, created_at, updated_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
+      ON CONFLICT (user_id)
       DO UPDATE SET
         fortnightly_income_cents = EXCLUDED.fortnightly_income_cents,
         default_fire_extinguisher_cents = EXCLUDED.default_fire_extinguisher_cents,
@@ -62,7 +58,6 @@ export class PostgresBudgetProfileRepository
     `;
 
     await this.pool.query(query, [
-      PROFILE_ID,
       userId,
       profile.fortnightlyIncome.cents,
       profile.defaultFireExtinguisherAmount.cents,
@@ -81,18 +76,21 @@ export class PostgresBudgetProfileRepository
     }));
 
     return new BudgetProfile(
-      row.id,
+      row.user_id,
       new Money(Number(row.fortnightly_income_cents)),
       this.resolveBps(row),
       fixedExpenses,
       row.timezone || 'UTC',
       new Date(row.created_at),
-      new Date(row.updated_at)
+      new Date(row.updated_at),
     );
   }
 
   private resolveBps(row: ProfileRow): number {
-    if (row.default_fire_extinguisher_bps !== undefined && row.default_fire_extinguisher_bps !== null) {
+    if (
+      row.default_fire_extinguisher_bps !== undefined &&
+      row.default_fire_extinguisher_bps !== null
+    ) {
       return Number(row.default_fire_extinguisher_bps);
     }
 
