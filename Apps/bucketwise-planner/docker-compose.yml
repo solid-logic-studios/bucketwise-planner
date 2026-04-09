@@ -1,8 +1,25 @@
 name: bucketwise-planner
 
 services:
+  frontend:
+    image: slsadmin/bucketwise-planner-frontend:0.4.7
+    container_name: frontend
+    depends_on:
+      - backend
+    restart: unless-stopped
+    ports:
+      - target: 80
+        published: 5555
+        protocol: tcp
+    x-casaos:
+      ports:
+        - container: "80"
+          description:
+            en_US: Bucketwise Planner web interface.
+
   backend:
     image: slsadmin/bucketwise-planner-backend:0.4.7
+    container_name: backend
     environment:
       NODE_ENV: production
       PORT: 3000
@@ -16,7 +33,7 @@ services:
     restart: unless-stopped
     volumes:
       - type: bind
-        source: /DATA/AppData/$AppID/uploads
+        source: /DATA/AppData/bucketwise-planner/uploads
         target: /app/uploads
     x-casaos:
       envs:
@@ -43,21 +60,6 @@ services:
           description:
             en_US: Persistent uploads directory for profile avatars and other file assets.
 
-  frontend:
-    image: slsadmin/bucketwise-planner-frontend:0.4.7
-    depends_on:
-      - backend
-    restart: unless-stopped
-    ports:
-      - target: 80
-        published: ${WEBUI_PORT:-5555}
-        protocol: tcp
-    x-casaos:
-      ports:
-        - container: "80"
-          description:
-            en_US: Bucketwise Planner web interface.
-
 x-casaos:
   architectures:
     - amd64
@@ -80,7 +82,7 @@ x-casaos:
     - https://raw.githubusercontent.com/solid-logic-studios/bucketwise-planner/casaos-appstore/Apps/bucketwise-planner/screenshot-3.png
   index: /
   scheme: http
-  port_map: ${WEBUI_PORT:-5555}
+  port_map: "5555"
   tips:
     before_install:
       en_US: |
