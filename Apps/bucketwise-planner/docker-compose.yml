@@ -1,0 +1,96 @@
+name: bucketwise-planner
+
+services:
+  backend:
+    image: slsadmin/bucketwise-planner-backend:0.4.7
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      STORAGE_METHOD: postgres
+      PG_CONNECTION_STRING: ${PG_CONNECTION_STRING}
+      JWT_SECRET: ${JWT_SECRET}
+      ADMIN_SECRET: ${ADMIN_SECRET}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      AI_ENABLED: ${AI_ENABLED:-false}
+      DB_SCHEMA_MODE: ${DB_SCHEMA_MODE:-manual}
+    restart: unless-stopped
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/uploads
+        target: /app/uploads
+    x-casaos:
+      envs:
+        - container: PG_CONNECTION_STRING
+          description:
+            en_US: PostgreSQL connection string for your existing Bucketwise database.
+        - container: JWT_SECRET
+          description:
+            en_US: Strong secret used to sign JWT access and refresh tokens.
+        - container: ADMIN_SECRET
+          description:
+            en_US: Strong secret used for admin-only operations.
+        - container: GEMINI_API_KEY
+          description:
+            en_US: Optional Google AI Studio key for the AI advisor feature.
+        - container: AI_ENABLED
+          description:
+            en_US: Set to true only when GEMINI_API_KEY is configured.
+        - container: DB_SCHEMA_MODE
+          description:
+            en_US: Use manual to prevent routine restarts from applying schema changes automatically.
+      volumes:
+        - container: /app/uploads
+          description:
+            en_US: Persistent uploads directory for profile avatars and other file assets.
+
+  frontend:
+    image: slsadmin/bucketwise-planner-frontend:0.4.7
+    depends_on:
+      - backend
+    restart: unless-stopped
+    ports:
+      - target: 80
+        published: ${WEBUI_PORT:-5555}
+        protocol: tcp
+    x-casaos:
+      ports:
+        - container: "80"
+          description:
+            en_US: Bucketwise Planner web interface.
+
+x-casaos:
+  architectures:
+    - amd64
+    - arm64
+  main: frontend
+  author: Solid Logic Studios
+  developer: Solid Logic Studios
+  category: Finance
+  title:
+    en_US: Bucketwise Planner
+  description:
+    en_US: Multi-user budgeting app with fortnightly planning, bucket allocations, and debt snowball tracking.
+  tagline:
+    en_US: Budget with buckets, fortnights, and debt snowball planning.
+  icon: https://raw.githubusercontent.com/solid-logic-studios/bucketwise-planner/casaos-appstore/Apps/bucketwise-planner/icon.png
+  thumbnail: https://raw.githubusercontent.com/solid-logic-studios/bucketwise-planner/casaos-appstore/Apps/bucketwise-planner/thumbnail.png
+  screenshot_link:
+    - https://raw.githubusercontent.com/solid-logic-studios/bucketwise-planner/casaos-appstore/Apps/bucketwise-planner/screenshot-1.png
+    - https://raw.githubusercontent.com/solid-logic-studios/bucketwise-planner/casaos-appstore/Apps/bucketwise-planner/screenshot-2.png
+    - https://raw.githubusercontent.com/solid-logic-studios/bucketwise-planner/casaos-appstore/Apps/bucketwise-planner/screenshot-3.png
+  index: /
+  scheme: http
+  port_map: ${WEBUI_PORT:-5555}
+  tips:
+    before_install:
+      en_US: |
+        This CasaOS package connects to an existing PostgreSQL database.
+
+        Required before install:
+        - A reachable PostgreSQL server containing your Bucketwise data
+        - A full `PG_CONNECTION_STRING`
+        - Strong values for `JWT_SECRET` and `ADMIN_SECRET`
+
+        Recommended for managed deployments:
+        - Keep `DB_SCHEMA_MODE=manual` for routine restarts
+        - Only switch to `auto` during a planned upgrade that requires schema changes
