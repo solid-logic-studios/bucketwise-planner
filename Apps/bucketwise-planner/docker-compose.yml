@@ -3,7 +3,6 @@ name: bucketwise-planner
 services:
   frontend:
     image: slsadmin/bucketwise-planner-frontend:0.4.7
-    container_name: frontend
     depends_on:
       - backend
     restart: unless-stopped
@@ -19,7 +18,6 @@ services:
 
   backend:
     image: slsadmin/bucketwise-planner-backend:0.4.7
-    container_name: backend
     environment:
       NODE_ENV: production
       PORT: 3000
