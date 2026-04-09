@@ -43,6 +43,17 @@ The CasaOS install requires:
 
 For routine managed deployment restarts, keep `DB_SCHEMA_MODE=manual`.
 
+## Validated CasaOS Install Settings
+
+The current CasaOS app definition has been validated with these settings:
+
+- Leave `Network` blank so CasaOS/Docker Compose creates the app network automatically.
+- Leave explicit container names blank.
+- Use `5555` as the Web UI port.
+- Keep `DB_SCHEMA_MODE=manual` for normal operation.
+
+The frontend is exposed on port `5555` and proxies `/api`, `/auth`, and `/uploads` to the backend service over the internal Compose network.
+
 Built with Domain-Driven Design, SOLID principles, and Scott Pape's Barefoot Investor methodology.
 
 [www.barefootinvestor.com](https://www.barefootinvestor.com/)
