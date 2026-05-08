@@ -1,6 +1,7 @@
 import { ZodError } from 'zod';
 import { DomainError } from '../../domain/exceptions/domain-error.js';
 import { ValidationError } from '../../domain/exceptions/validation-error.js';
+import { UserFacingError } from '../../shared/errors/user-facing-error.js';
 import type { IApplicationError } from './application-error.interface.js';
 
 /**
@@ -65,6 +66,16 @@ export class ErrorMapper {
         isDomainError: true,
         code: 'DOMAIN_ERROR',
       };
+    }
+
+    if (error instanceof UserFacingError) {
+      return {
+        statusCode: error.statusCode,
+        message: error.message,
+        isDomainError: false,
+        code: error.code,
+        ...(isDevelopment && error.details ? { details: error.details } : {}),
+      } satisfies IApplicationError;
     }
 
     // Generic Error

@@ -32,15 +32,24 @@ Edit your backend `.env` file:
 
 ```bash
 GEMINI_API_KEY=your-key-from-step-1
+GEMINI_MODEL=gemini-2.5-flash
 AI_ENABLED=true
 ```
 
-### Step 3: Restart Backend
+If your key works in Google AI Studio or with curl against `gemini-flash-latest` but Bucketwise chat still fails, try:
+
+```bash
+GEMINI_MODEL=gemini-flash-latest
+```
+
+### Step 3: Reload Backend
 
 **Docker Compose:**
 ```bash
-docker compose restart backend
+docker compose up -d --force-recreate backend
 ```
+
+`docker compose restart` does not reload changed environment variables from `.env`, so recreate the backend container after changing AI settings.
 
 **Manual:**
 ```bash
@@ -130,7 +139,7 @@ Follow the "Enabling AI Advisor" section above.
 **Check:**
 1. Is `GEMINI_API_KEY` set in backend `.env`?
 2. Is `AI_ENABLED=true` in backend `.env`?
-3. Did you restart the backend after changing `.env`?
+3. Did you recreate the Docker backend container after changing `.env`?
 4. Check browser console for errors: Press `F12` → Console tab
 
 **Solution:**
@@ -138,10 +147,14 @@ Follow the "Enabling AI Advisor" section above.
 # Verify backend configuration
 cd backend
 cat .env | grep GEMINI_API_KEY
+cat .env | grep GEMINI_MODEL
 cat .env | grep AI_ENABLED
 
-# Restart backend
-docker compose restart backend
+# Verify the running container received the variables
+docker compose exec backend env | grep GEMINI
+
+# Recreate backend so env changes are applied
+docker compose up -d --force-recreate backend
 # OR: Kill and re-run: pnpm dev
 ```
 
@@ -151,19 +164,28 @@ docker compose restart backend
 1. Invalid API key (typo, key revoked)
 2. API quota exceeded (hit rate limit or daily limit)
 3. Network issue (firewall, proxy blocking Google)
-4. Backend crash
+4. Configured Gemini model is not available for your API key/account
+5. Backend crash
 
 **Solutions:**
 1. Regenerate API key: [Google AI Studio](https://aistudio.google.com/)
 2. Wait a few minutes before trying again (rate limit)
-3. Check backend logs: `docker compose logs backend | grep -i gemini` or `grep -i gemini backend.log`
-4. Check your network connectivity
+3. Check backend logs: `docker compose logs backend --tail=100`
+4. If logs show a model-specific failure, try `GEMINI_MODEL=gemini-flash-latest`
+5. Recreate the backend container after changing `GEMINI_MODEL`
+6. Check your network connectivity
 
 ### "Invalid API key"
 
 - Double-check the key is copied correctly (no extra spaces)
 - Regenerate the key in [Google AI Studio](https://aistudio.google.com/)
 - Ensure `GEMINI_API_KEY` is exactly as shown in AI Studio (starts with `AIza...`)
+
+### Model mismatch or account compatibility issues
+
+- Bucketwise defaults to `GEMINI_MODEL=gemini-2.5-flash`
+- Some keys or accounts may succeed against `gemini-flash-latest` while failing on a specific model name
+- If your direct curl test works with `gemini-flash-latest` but the app fails, set `GEMINI_MODEL=gemini-flash-latest` and recreate the backend container
 
 ### High latency or slow responses
 

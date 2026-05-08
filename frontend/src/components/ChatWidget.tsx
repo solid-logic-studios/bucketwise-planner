@@ -17,6 +17,7 @@ import { IconSend, IconTrash } from '@tabler/icons-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { isApiClientError } from '../api/errors';
 import { useChat } from '../hooks/useChat';
 import { usePageContext } from '../hooks/usePageContext';
 import { showSuccess } from '../utils/notifications';
@@ -143,6 +144,9 @@ export function ChatWidget() {
     [pageContext?.page, getEmptyStateSuggestions]
   );
 
+  const isAiDisabledError =
+    isApiClientError(error) && error.statusCode === 404;
+
   return (
     <Drawer
       opened={isOpen}
@@ -179,7 +183,7 @@ export function ChatWidget() {
         <Divider />
 
         {/* AI Disabled notice */}
-        {error?.includes('404') || error?.includes('not found') ? (
+        {isAiDisabledError ? (
           <Alert color="yellow" title="AI Advisor Disabled" icon={null}>
             <Stack gap="xs">
               <Text size="sm">
@@ -199,7 +203,7 @@ export function ChatWidget() {
           </Alert>
         ) : error ? (
           <Alert color="red" title="Error" withCloseButton onClose={() => null}>
-            {error}
+            {error.message}
           </Alert>
         ) : null}
 

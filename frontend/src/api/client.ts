@@ -19,6 +19,7 @@ import type {
   CsvImportPreviewResponse,
   CsvImportCommitRequest,
 } from './types.ts';
+import { ApiClientError, createApiClientError } from './errors.ts';
 
 const API_BASE = import.meta.env.VITE_API_BASE || '/api';
 const AUTH_BASE = import.meta.env.VITE_AUTH_BASE || '/auth';
@@ -105,27 +106,17 @@ async function request<T>(
   }
 
   if (!response.ok) {
-    // Try to read server error body for more context
-    try {
-      const errJson = (await response.json()) as ApiResponse<unknown>;
-      const serverMessage = errJson?.error?.message;
-      if (serverMessage) {
-        throw new Error(serverMessage);
-      }
-    } catch {
-      // ignore JSON parse errors
-    }
-    throw new Error(`Request failed: ${response.status} ${response.statusText}`);
+    throw await createApiClientError(response);
   }
 
   const json = (await response.json()) as ApiResponse<T>;
   if (!json.success) {
     const message = json.error?.message || 'Unknown error';
-    throw new Error(message);
+    throw new ApiClientError(message, 200, json.error?.code, json.error?.details);
   }
 
   if (json.data === undefined) {
-    throw new Error('No data returned');
+    throw new ApiClientError('No data returned', 200);
   }
 
   return json.data;
@@ -143,25 +134,16 @@ async function requestAuth<T>(path: string, method: HttpMethod, body?: unknown):
   });
 
   if (!response.ok) {
-    try {
-      const errJson = (await response.json()) as ApiResponse<unknown>;
-      const serverMessage = errJson?.error?.message;
-      if (serverMessage) {
-        throw new Error(serverMessage);
-      }
-    } catch {
-      // ignore JSON parse errors
-    }
-    throw new Error(`Request failed: ${response.status} ${response.statusText}`);
+    throw await createApiClientError(response);
   }
 
   const json = (await response.json()) as ApiResponse<T>;
   if (!json.success) {
     const message = json.error?.message || 'Unknown error';
-    throw new Error(message);
+    throw new ApiClientError(message, 200, json.error?.code, json.error?.details);
   }
   if (json.data === undefined) {
-    throw new Error('No data returned');
+    throw new ApiClientError('No data returned', 200);
   }
   return json.data;
 }
@@ -326,8 +308,7 @@ export const api = {
       body: formData,
     });
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error?.message || 'Upload failed');
+      throw await createApiClientError(response, 'Upload failed');
     }
     const result = await response.json();
     return result.data;
@@ -363,8 +344,7 @@ export const api = {
     });
 
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error?.message || 'Preview failed');
+      throw await createApiClientError(response, 'Preview failed');
     }
     const result = await response.json();
     return result.data;

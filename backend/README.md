@@ -22,6 +22,7 @@ The AI chat feature is **optional and disabled by default**:
 
 - Requires Google AI Studio API key (free tier available)
 - Routes only registered if `AI_ENABLED=true` and `GEMINI_API_KEY` is set
+- Optional `GEMINI_MODEL` override if your API key/account needs a different Gemini model alias
 - Core budgeting features work fully without the AI key
 - Frontend shows a friendly "AI disabled" message when not configured
 

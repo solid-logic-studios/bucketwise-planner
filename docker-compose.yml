@@ -28,6 +28,7 @@ services:
       # Use provided PG_CONNECTION_STRING, or default to local postgres service
       PG_CONNECTION_STRING: ${PG_CONNECTION_STRING:-postgresql://bucketwise:your-secure-password@postgres:5432/bucketwise}
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-2.5-flash}
       JWT_SECRET: ${JWT_SECRET}
       ADMIN_SECRET: ${ADMIN_SECRET}
       AI_ENABLED: ${AI_ENABLED:-false}
@@ -108,6 +109,11 @@ x-casaos:
       label: Google AI API key (optional)
       description: Get free key from https://aistudio.google.com/ to enable AI advisor
     - container: backend
+      name: GEMINI_MODEL
+      label: Gemini model override
+      default: gemini-2.5-flash
+      description: Optional model name override if your API key requires a different Gemini alias
+    - container: backend
       name: AI_ENABLED
       label: Enable AI advisor
       default: "false"
@@ -126,6 +132,7 @@ x-casaos:
       - "Generate JWT_SECRET: openssl rand -base64 32"
       - "Generate ADMIN_SECRET: openssl rand -base64 32"
       - "Optional: Set GEMINI_API_KEY and AI_ENABLED=true for AI chat feature"
+      - "Optional: If AI chat fails with a valid key, try GEMINI_MODEL=gemini-flash-latest"
   ports:
     - container: frontend
       description: Web UI

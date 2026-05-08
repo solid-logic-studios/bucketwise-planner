@@ -301,6 +301,7 @@ Notes:
 | Variable         | Purpose                          | Default                              |
 | ---------------- | -------------------------------- | ------------------------------------ |
 | `GEMINI_API_KEY` | Google AI key (for chat feature) | (disabled)                           |
+| `GEMINI_MODEL`   | Gemini model override            | `gemini-2.5-flash`                   |
 | `AI_ENABLED`     | Enable AI advisor                | `false`                              |
 | `VITE_API_BASE`  | Frontend API endpoint            | `http://localhost:3000`              |
 | `STORAGE_METHOD` | Storage method for data          | `postgres` (recommended) or `memory` |
@@ -312,8 +313,11 @@ Notes:
 1. Get free key from [Google AI Studio](https://aistudio.google.com/)
 2. Set `GEMINI_API_KEY` in backend `.env`
 3. Set `AI_ENABLED=true`
-4. Restart backend
-5. Chat bubble appears in top-right header
+4. Optional: if your key works with `gemini-flash-latest` but chat still fails, set `GEMINI_MODEL=gemini-flash-latest`
+5. Reload backend configuration
+  Docker Compose: `docker compose up -d --force-recreate backend`
+  Manual backend: restart `pnpm dev`
+6. Chat bubble appears in top-right header
 
 **Full guide:** [docs/AI_ADVISOR.md](docs/AI_ADVISOR.md)
 

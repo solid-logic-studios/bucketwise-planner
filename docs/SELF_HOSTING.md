@@ -279,11 +279,14 @@ The AI chat feature is optional and disabled by default.
 1. Get a free API key from [Google AI Studio](https://aistudio.google.com/)
 2. Set `GEMINI_API_KEY` in your `.env` file
 3. Set `AI_ENABLED=true`
-4. Restart the backend service:
+4. Optional: if your key works with `gemini-flash-latest` but Bucketwise chat still fails, set `GEMINI_MODEL=gemini-flash-latest`
+5. Reload the backend service:
    ```bash
-   docker compose restart backend
+  docker compose up -d --force-recreate backend
    # OR: kill and restart `pnpm dev` in backend terminal
    ```
+
+For Docker Compose deployments, `restart` does not reload changed environment variables from `.env`; recreate the backend container instead.
 
 The chat bubble will appear in the top-right header when enabled.
 
@@ -324,8 +327,15 @@ Error: connect ECONNREFUSED 127.0.0.1:5432
 
 - Ensure `GEMINI_API_KEY` is set
 - Ensure `AI_ENABLED=true`
+- Verify what the container received: `docker compose exec backend env | grep GEMINI`
 - Check backend logs: `docker compose logs backend`
-- Restart backend after changing environment variables
+- Recreate backend after changing environment variables: `docker compose up -d --force-recreate backend`
+
+### "AI advisor request failed" Message
+
+- Check backend logs for the actual provider error: `docker compose logs backend --tail=100`
+- If the log mentions the configured model, try `GEMINI_MODEL=gemini-flash-latest`
+- Recreate the backend container after changing `GEMINI_MODEL`
 
 ### JWT Errors (Login Fails)
 

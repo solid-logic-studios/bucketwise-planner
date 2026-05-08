@@ -193,18 +193,19 @@ export async function createApp(): Promise<Application> {
   let sendChatMessageUseCase: SendChatMessageUseCase | null = null;
   const aiEnabled = process.env.AI_ENABLED === 'true';
   const apiKey = process.env.GEMINI_API_KEY;
+  const aiModel = process.env.GEMINI_MODEL?.trim() || GeminiAiProvider.DEFAULT_MODEL_NAME;
 
   if (aiEnabled && apiKey) {
     const advisorService = new BarefootAdvisorService();
     const systemInstruction = advisorService.getSystemPrompt(); // Get strict Barefoot methodology
-    const aiProvider = new GeminiAiProvider(apiKey, systemInstruction);
+    const aiProvider = new GeminiAiProvider(apiKey, systemInstruction, aiModel);
     sendChatMessageUseCase = new SendChatMessageUseCase(
       profileRepo,
       debtRepo,
       fortnightRepo,
       aiProvider,
     );
-    console.log('AI Chat advisor enabled');
+    console.log(`AI Chat advisor enabled (model: ${aiModel})`);
   } else if (aiEnabled && !apiKey) {
     console.warn(
       'AI_ENABLED=true but GEMINI_API_KEY not set. AI Chat advisor disabled. To enable, set both AI_ENABLED=true and GEMINI_API_KEY.',
