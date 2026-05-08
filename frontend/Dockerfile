@@ -11,12 +11,14 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY frontend/package.json frontend/package.json
 COPY backend/package.json backend/package.json
 
-COPY tsconfig.json ./
-COPY frontend ./frontend
-
-# Install after the workspace source is present so pnpm links are created against
-# the final package layout used by the build.
+# Install all workspace dependencies from manifests first so source-only
+# frontend changes do not invalidate the dependency layer.
 RUN pnpm install --frozen-lockfile --prod=false --recursive
+
+COPY tsconfig.json ./
+COPY frontend/index.html frontend/vite.config.ts frontend/tsconfig.json frontend/tsconfig.app.json frontend/tsconfig.node.json ./frontend/
+COPY frontend/public ./frontend/public
+COPY frontend/src ./frontend/src
 
 # Set Vite environment variables for production build
 # These get baked into the JavaScript bundle at build time

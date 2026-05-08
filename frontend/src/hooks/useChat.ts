@@ -11,6 +11,7 @@ interface UseChatResult {
   error: ApiClientError | Error | null;
   totalTokensUsed: number;
   sendMessage: (message: string, pageContext?: PageContext) => Promise<void>;
+  clearError: () => void;
   clearMessages: () => void;
 }
 
@@ -107,12 +108,17 @@ export function useChat(): UseChatResult {
     setTotalTokensUsed(0);
   }, []);
 
+  const clearError = useCallback(() => {
+    setError(null);
+  }, []);
+
   return {
     messages,
     isLoading,
     error,
     totalTokensUsed,
     sendMessage,
+    clearError,
     clearMessages,
   };
 }

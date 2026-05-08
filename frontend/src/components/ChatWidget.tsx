@@ -47,7 +47,7 @@ import { TokenUsageIndicator } from './TokenUsageIndicator';
  */
 export function ChatWidget() {
   const { isOpen, closeChat } = useChatContext();
-  const { messages, isLoading, error, totalTokensUsed, sendMessage, clearMessages } = useChat();
+  const { messages, isLoading, error, totalTokensUsed, sendMessage, clearError, clearMessages } = useChat();
   const pageContext = usePageContext();
   const [inputValue, setInputValue] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -193,8 +193,11 @@ export function ChatWidget() {
                 <ol style={{ margin: '8px 0', paddingLeft: '20px' }}>
                   <li>Set <code>AI_ENABLED=true</code> in backend .env</li>
                   <li>Set <code>GEMINI_API_KEY=your_key</code> in backend .env</li>
-                  <li>Restart the backend service</li>
+                  <li>Reload the backend configuration</li>
                 </ol>
+                Docker Compose: <code>docker compose up -d --force-recreate backend</code>
+                <br />
+                Manual backend: restart <code>pnpm dev</code>
               </Text>
               <Text size="xs" c="dimmed">
                 See <a href="https://github.com/PaulAtkins88/bucketwise-planner/blob/main/docs/AI_ADVISOR.md" target="_blank" rel="noopener noreferrer">AI_ADVISOR.md</a> for details.
@@ -202,7 +205,7 @@ export function ChatWidget() {
             </Stack>
           </Alert>
         ) : error ? (
-          <Alert color="red" title="Error" withCloseButton onClose={() => null}>
+          <Alert color="red" title="Error" withCloseButton onClose={clearError}>
             {error.message}
           </Alert>
         ) : null}

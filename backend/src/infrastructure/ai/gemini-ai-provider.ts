@@ -14,7 +14,7 @@ type GeminiGenerateContentResponse = {
 };
 
 /**
- * GeminiAiProviderError: Domain error for Gemini API failures.
+ * GeminiAiProviderError: User-facing error for Gemini API failures.
  * Thrown when the Google Gen AI API call fails.
  * 
  * @extends UserFacingError
@@ -33,7 +33,8 @@ export class GeminiAiProviderError extends UserFacingError {
 
 /**
  * GeminiAiProvider: Implements IAiProvider using Google Gen AI SDK.
- * Uses the gemini-2.5-flash model for speed and efficiency.
+ * Uses `GeminiAiProvider.DEFAULT_MODEL_NAME` by default, with an optional
+ * constructor override for deployments that need a different Gemini alias.
  * 
  * IMPORTANT: Accepts systemInstruction in constructor to enforce strict
  * behavioral guidelines (e.g., Barefoot Investor methodology). This is

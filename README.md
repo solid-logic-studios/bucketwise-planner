@@ -315,8 +315,8 @@ Notes:
 3. Set `AI_ENABLED=true`
 4. Optional: if your key works with `gemini-flash-latest` but chat still fails, set `GEMINI_MODEL=gemini-flash-latest`
 5. Reload backend configuration
-  Docker Compose: `docker compose up -d --force-recreate backend`
-  Manual backend: restart `pnpm dev`
+   Docker Compose: `docker compose up -d --force-recreate backend`
+   Manual backend: restart `pnpm dev`
 6. Chat bubble appears in top-right header
 
 **Full guide:** [docs/AI_ADVISOR.md](docs/AI_ADVISOR.md)
