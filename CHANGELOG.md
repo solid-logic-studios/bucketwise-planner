@@ -7,14 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.8] - 2026-05-09
+
 ### Added
 
 - Docker release workflow that publishes multi-arch backend and frontend images to Docker Hub on semver tags
+- `GEMINI_MODEL` backend configuration for overriding the default Gemini model when provider/account compatibility requires it
 
 ### Changed
 
+- AI provider failures are now mapped to user-safe `502 AI_PROVIDER_ERROR` responses while preserving technical diagnostics in backend logs
+- Frontend API error handling now preserves structured backend error payloads so chat and auth flows show accurate messages
+- Chat UI no longer misclassifies provider/model failures as "AI Advisor Disabled"
+- Frontend Docker build ordering now installs workspace dependencies in a way that resolves shared packages during image builds
 - Backend startup now supports `DB_SCHEMA_MODE=manual` to skip automatic schema setup and migrations in managed deployments such as CasaOS
 - Backend runtime image now pre-creates the uploads directory used for persisted avatars
+- Self-hosting and AI docs now call out that changing backend AI env vars requires `docker compose up -d --force-recreate backend`
+
+### Fixed
+
+- AI chat requests now surface Gemini provider/model failures as diagnosable user-facing errors instead of generic internal failures
+
+### Upgrade Notes
+
+- No database migration required
+- After changing backend AI env vars such as `AI_ENABLED`, `GEMINI_API_KEY`, or `GEMINI_MODEL`, recreate the backend container with `docker compose up -d --force-recreate backend`; `docker compose restart backend` is not sufficient
 
 ## [0.4.6] - 2026-04-08
 
@@ -255,6 +272,7 @@ Learn more: https://www.barefootinvestor.com/
 ---
 
 [0.4.6]: https://github.com/solid-logic-studios/bucketwise-planner/releases/tag/v0.4.6
+[0.4.8]: https://github.com/solid-logic-studios/bucketwise-planner/releases/tag/v0.4.8
 [0.4.5]: https://github.com/solid-logic-studios/bucketwise-planner/releases/tag/v0.4.5
 [0.4.4]: https://github.com/solid-logic-studios/bucketwise-planner/releases/tag/v0.4.4
 [0.4.3]: https://github.com/solid-logic-studios/bucketwise-planner/releases/tag/v0.4.3
