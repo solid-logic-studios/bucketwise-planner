@@ -31,6 +31,7 @@ RUN pnpm --filter frontend build
 FROM nginx:1.27-alpine AS runner
 WORKDIR /usr/share/nginx/html
 
+RUN apk add --no-cache curl
 RUN rm /etc/nginx/conf.d/default.conf
 COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=builder /app/frontend/dist /usr/share/nginx/html

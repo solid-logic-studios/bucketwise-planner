@@ -3,6 +3,7 @@ FROM node:22-alpine
 
 ENV PNPM_HOME=/root/.local/share/pnpm
 ENV PATH="$PNPM_HOME:$PATH"
+RUN apk add --no-cache curl
 RUN corepack enable
 
 WORKDIR /app

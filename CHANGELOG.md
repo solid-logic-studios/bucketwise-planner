@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - AI chat requests now surface Gemini provider/model failures as diagnosable user-facing errors instead of generic internal failures
+- Docker backend and frontend runtime images now include `curl` so Compose health checks work with published Docker Hub images instead of failing unhealthy on missing binaries
 
 ### Upgrade Notes
 
