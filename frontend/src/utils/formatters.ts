@@ -1,8 +1,34 @@
-export const formatCurrency = (cents?: number): string => {
+export const supportedCurrencyCodes = ['AUD', 'USD', 'NZD'] as const;
+export type SupportedCurrencyCode = (typeof supportedCurrencyCodes)[number];
+
+const DEFAULT_CURRENCY_CODE: SupportedCurrencyCode = 'AUD';
+
+const CURRENCY_FORMAT_BY_CODE: Record<SupportedCurrencyCode, { locale: string; currency: string }> = {
+  AUD: { locale: 'en-AU', currency: 'AUD' },
+  USD: { locale: 'en-US', currency: 'USD' },
+  NZD: { locale: 'en-NZ', currency: 'NZD' },
+};
+
+export const getConfiguredCurrencyCode = (): SupportedCurrencyCode => {
+  if (typeof window === 'undefined') return DEFAULT_CURRENCY_CODE;
+
+  const value = localStorage.getItem('currencyCode');
+  if (value === 'USD' || value === 'NZD' || value === 'AUD') {
+    return value;
+  }
+
+  return DEFAULT_CURRENCY_CODE;
+};
+
+export const formatCurrency = (
+  cents?: number,
+  currencyCode: SupportedCurrencyCode = getConfiguredCurrencyCode()
+): string => {
   if (cents === undefined) return '-';
-  return new Intl.NumberFormat('en-AU', {
+  const format = CURRENCY_FORMAT_BY_CODE[currencyCode] ?? CURRENCY_FORMAT_BY_CODE.AUD;
+  return new Intl.NumberFormat(format.locale, {
     style: 'currency',
-    currency: 'AUD',
+    currency: format.currency,
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(cents / 100);

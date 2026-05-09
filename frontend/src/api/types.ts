@@ -206,12 +206,15 @@ export interface FixedExpenseDTO {
   amountCents: number;
 }
 
+export type CurrencyCode = 'AUD' | 'USD' | 'NZD';
+
 export interface ProfileDTO {
   fortnightlyIncomeCents: number;
   defaultFireExtinguisherPercent: number;
   defaultFireExtinguisherAmountCents: number;
   fixedExpenses: FixedExpenseDTO[];
   timezone: string;
+  currencyCode: CurrencyCode;
 }
 
 export interface SkippedDebtPaymentDTO {

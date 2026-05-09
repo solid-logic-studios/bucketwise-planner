@@ -156,7 +156,7 @@ Scope Constraints:
 
     // Income and allocations
     const fortnightlyIncomeDollars = (profile.fortnightlyIncome.cents / 100).toFixed(2);
-    lines.push(`Fortnightly Income: $${fortnightlyIncomeDollars} AUD`);
+    lines.push(`Fortnightly Income: $${fortnightlyIncomeDollars} ${profile.currencyCode}`);
 
     const fireExtinguisherCents = Math.floor(
       (profile.fortnightlyIncome.cents * profile.defaultFireExtinguisherBps) / 10000

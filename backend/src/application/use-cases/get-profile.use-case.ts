@@ -1,4 +1,5 @@
 import type { BudgetProfile } from '../../domain/model/budget-profile.entity.js';
+import { DEFAULT_CURRENCY_CODE, type CurrencyCode } from '../../domain/model/currency-code.js';
 import type { BudgetProfileRepository } from '../../domain/repositories/budget-profile.repository.interface.js';
 import { UseCase } from './base.use-case.js';
 
@@ -15,6 +16,7 @@ export interface ProfileDTO {
   defaultFireExtinguisherAmountCents: number;
   fixedExpenses: FixedExpenseDTO[];
   timezone: string;
+  currencyCode: CurrencyCode;
 }
 
 const DEFAULT_PROFILE: ProfileDTO = {
@@ -23,6 +25,7 @@ const DEFAULT_PROFILE: ProfileDTO = {
   defaultFireExtinguisherAmountCents: 0,
   fixedExpenses: [],
   timezone: 'UTC',
+  currencyCode: DEFAULT_CURRENCY_CODE,
 };
 
 export interface GetProfileRequest {
@@ -54,6 +57,7 @@ export class GetProfileUseCase extends UseCase<GetProfileRequest, ProfileDTO> {
         amountCents: fx.amount.cents,
       })),
       timezone: profile.timezone,
+      currencyCode: profile.currencyCode,
     };
   }
 }

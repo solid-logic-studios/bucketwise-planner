@@ -3,6 +3,7 @@ import { DateTimePicker } from '@mantine/dates';
 import type { UseFormReturnType } from '@mantine/form';
 import type { DebtDTO } from '../../api/types.js';
 import { bucketOptions, type TransactionFormValues } from '../../hooks/transactions/types.js';
+import { getConfiguredCurrencyCode } from '../../utils/formatters.js';
 import { ErrorAlert } from '../ErrorAlert.js';
 
 interface AddTransactionModalProps {
@@ -29,6 +30,7 @@ export function AddTransactionModal({
   onSubmit,
 }: AddTransactionModalProps) {
   const isTransfer = form.values.kind === 'transfer';
+  const currencyCode = getConfiguredCurrencyCode();
 
   return (
     <Modal opened={opened && !isHistoricalFortnight} onClose={onClose} title="Add Transaction" size="md">
@@ -103,9 +105,13 @@ export function AddTransactionModal({
             <TextInput label="Description" placeholder={isTransfer ? "e.g., Allocate to debt payoff" : "e.g., Groceries at Coles"} required {...form.getInputProps('description')} />
           </Tooltip>
 
-          <Tooltip label="Transaction amount in Australian Dollars - will be converted to cents for storage" withArrow position="right">
+          <Tooltip
+            label={`Transaction amount in ${currencyCode} - will be converted to cents for storage`}
+            withArrow
+            position="right"
+          >
             <NumberInput
-              label="Amount (AUD)"
+              label={`Amount (${currencyCode})`}
               placeholder="0.00"
               required
               min={0}

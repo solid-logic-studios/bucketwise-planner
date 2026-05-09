@@ -43,6 +43,7 @@ export class ProfileController extends BaseController {
         amountCents: fx.amountCents,
       })),
       timezone: body.timezone ?? 'UTC',
+      ...(body.currencyCode ? { currencyCode: body.currencyCode } : {}),
     });
     this.sendSuccess(res, result);
   }

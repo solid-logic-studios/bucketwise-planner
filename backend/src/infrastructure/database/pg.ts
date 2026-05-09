@@ -94,6 +94,7 @@ export async function ensureSchema(pool: Pool): Promise<void> {
       default_fire_extinguisher_cents INTEGER NOT NULL DEFAULT 0,
       default_fire_extinguisher_bps INTEGER NOT NULL DEFAULT 0,
       fixed_expenses JSONB NOT NULL DEFAULT '[]',
+      currency_code TEXT NOT NULL DEFAULT 'AUD' CHECK (currency_code IN ('AUD', 'USD', 'NZD')),
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
       updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
@@ -145,5 +146,8 @@ export async function ensureSchema(pool: Pool): Promise<void> {
     -- Mortgage-specific extra fields on debts (non-breaking, optional)
     ALTER TABLE debts ADD COLUMN IF NOT EXISTS min_payment_frequency TEXT NOT NULL DEFAULT 'FORTNIGHTLY' CHECK (min_payment_frequency IN ('FORTNIGHTLY','MONTHLY'));
     ALTER TABLE debts ADD COLUMN IF NOT EXISTS annual_fee_cents INTEGER NOT NULL DEFAULT 0;
+    ALTER TABLE budget_profiles ADD COLUMN IF NOT EXISTS currency_code TEXT NOT NULL DEFAULT 'AUD';
+    ALTER TABLE budget_profiles DROP CONSTRAINT IF EXISTS budget_profiles_currency_code_check;
+    ALTER TABLE budget_profiles ADD CONSTRAINT budget_profiles_currency_code_check CHECK (currency_code IN ('AUD', 'USD', 'NZD'));
   `);
 }

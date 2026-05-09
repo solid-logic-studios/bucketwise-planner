@@ -10,6 +10,7 @@ import type {
   FortnightDetailDTO,
   MortgageDTO,
   MortgageOverpaymentPlanDTO,
+  CurrencyCode,
   ProfileDTO,
   SendChatMessageRequest,
   SkippedDebtPaymentDTO,
@@ -28,6 +29,12 @@ let accessToken: string | null =
   typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
 let refreshToken: string | null =
   typeof window !== 'undefined' ? localStorage.getItem('refreshToken') : null;
+
+function syncCurrencyCode(currencyCode: CurrencyCode): void {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('currencyCode', currencyCode);
+  }
+}
 
 export function setAuthTokens(tokens: { accessToken: string; refreshToken: string }): void {
   accessToken = tokens.accessToken;
@@ -281,13 +288,23 @@ export const api = {
       { limit },
     ),
 
-  getProfile: () => request<ProfileDTO>('/profile', 'GET'),
+  getProfile: async () => {
+    const profile = await request<ProfileDTO>('/profile', 'GET');
+    syncCurrencyCode(profile.currencyCode);
+    return profile;
+  },
 
   updateProfile: (input: {
     fortnightlyIncomeCents: number;
     defaultFireExtinguisherPercent: number;
+    timezone: string;
+    currencyCode: CurrencyCode;
     fixedExpenses: Array<{ id?: string; name: string; bucket: string; amountCents: number }>;
-  }) => request<ProfileDTO>('/profile', 'PUT', input),
+  }) =>
+    request<ProfileDTO>('/profile', 'PUT', input).then((profile) => {
+      syncCurrencyCode(profile.currencyCode);
+      return profile;
+    }),
 
   // User profile (name)
   getUserProfile: () => request<{ email: string; name: string }>('/profile/user', 'GET'),

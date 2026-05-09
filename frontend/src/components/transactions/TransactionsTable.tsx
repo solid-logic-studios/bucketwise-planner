@@ -3,7 +3,7 @@ import { IconEdit, IconRefresh, IconTrash, IconX } from '@tabler/icons-react';
 import type { Dispatch, SetStateAction } from 'react';
 import type { TransactionDTO } from '../../api/types.js';
 import { bucketOptions, type TransactionFilters, type TransactionState } from '../../hooks/transactions/types.js';
-import { formatCurrency, formatDateTime } from '../../utils/formatters.js';
+import { formatCurrency, formatDateTime, getConfiguredCurrencyCode } from '../../utils/formatters.js';
 import { filterTransactionsBySearch, groupTransactions, type GroupBy } from '../../utils/transactions.js';
 import { BucketBadge } from '../BucketBadge.js';
 import { EmptyState } from '../EmptyState.js';
@@ -46,6 +46,8 @@ export function TransactionsTable({
   currentPage,
   onPageChange,
 }: TransactionsTableProps) {
+  const currencyCode = getConfiguredCurrencyCode();
+
   const showPagination = state.total > pageSize;
 
   return (
@@ -182,7 +184,11 @@ export function TransactionsTable({
                           <Tooltip label="Transaction type: Income (money in), Expense (money out), or Transfer (between buckets)" withArrow position="top">
                             <Table.Th>Kind</Table.Th>
                           </Tooltip>
-                          <Tooltip label="Transaction amount in Australian Dollars" withArrow position="top">
+                          <Tooltip
+                            label={`Transaction amount in ${currencyCode}`}
+                            withArrow
+                            position="top"
+                          >
                             <Table.Th>Amount</Table.Th>
                           </Tooltip>
                           <Tooltip label="Custom categorization labels for filtering and tracking (e.g., 'groceries', 'medical')" withArrow position="top">

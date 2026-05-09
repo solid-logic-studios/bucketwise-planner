@@ -1,6 +1,11 @@
 import { ValidationError } from '../exceptions/validation-error.js';
 import type { BarefootBucket } from './barefoot-bucket.js';
 import { BaseEntity } from './base.entity.js';
+import {
+  DEFAULT_CURRENCY_CODE,
+  type CurrencyCode,
+  isSupportedCurrencyCode,
+} from './currency-code.js';
 import { Money } from './money.js';
 
 export interface FixedExpense {
@@ -15,6 +20,7 @@ export class BudgetProfile extends BaseEntity {
   readonly defaultFireExtinguisherBps: number; // basis points (0-10000)
   readonly fixedExpenses: FixedExpense[];
   readonly timezone: string; // IANA timezone identifier (e.g., 'Australia/Melbourne', 'UTC')
+  readonly currencyCode: CurrencyCode;
 
   constructor(
     id: string,
@@ -23,7 +29,8 @@ export class BudgetProfile extends BaseEntity {
     fixedExpenses: FixedExpense[],
     timezone: string = 'UTC',
     createdAt?: Date,
-    updatedAt?: Date
+    updatedAt?: Date,
+    currencyCode: CurrencyCode = DEFAULT_CURRENCY_CODE
   ) {
     super(id, createdAt, updatedAt);
     if (fortnightlyIncome.cents < 0) {
@@ -32,14 +39,20 @@ export class BudgetProfile extends BaseEntity {
     if (defaultFireExtinguisherBps < 0 || defaultFireExtinguisherBps > 10000) {
       throw new ValidationError('Default Fire Extinguisher percent must be between 0 and 100');
     }
+    if (!isSupportedCurrencyCode(currencyCode)) {
+      throw new ValidationError(
+        `Unsupported currency code: ${currencyCode}. Supported values are AUD, USD, NZD.`
+      );
+    }
     this.fortnightlyIncome = fortnightlyIncome;
     this.defaultFireExtinguisherBps = Math.round(defaultFireExtinguisherBps);
     this.fixedExpenses = fixedExpenses;
     this.timezone = timezone;
+    this.currencyCode = currencyCode;
   }
 
   get defaultFireExtinguisherAmount(): Money {
     const cents = Math.floor((this.fortnightlyIncome.cents * this.defaultFireExtinguisherBps) / 10000);
-    return new Money(cents);
+    return new Money(cents, this.currencyCode);
   }
 }

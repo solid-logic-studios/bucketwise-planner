@@ -2,6 +2,7 @@ import { Button, Group, Modal, NumberInput, Radio, Select, Stack, TagsInput, Tex
 import { DateTimePicker } from '@mantine/dates';
 import type { UseFormReturnType } from '@mantine/form';
 import { bucketOptions, type TransactionFormValues } from '../../hooks/transactions/types.js';
+import { getConfiguredCurrencyCode } from '../../utils/formatters.js';
 import { ErrorAlert } from '../ErrorAlert.js';
 
 interface EditTransactionModalProps {
@@ -16,6 +17,7 @@ interface EditTransactionModalProps {
 
 export function EditTransactionModal({ opened, onClose, form, submitting, submitError, suggestedTags = [], onSubmit }: EditTransactionModalProps) {
   const isTransfer = form.values.kind === 'transfer';
+  const currencyCode = getConfiguredCurrencyCode();
 
   return (
     <Modal opened={opened} onClose={onClose} title="Edit Transaction" centered>
@@ -66,9 +68,9 @@ export function EditTransactionModal({ opened, onClose, form, submitting, submit
             <TextInput label="Description" placeholder={isTransfer ? "e.g., Reallocate to debt" : "e.g., Groceries at Coles"} required {...form.getInputProps('description')} />
           </Tooltip>
 
-          <Tooltip label="Transaction amount in Australian Dollars" withArrow position="right">
+          <Tooltip label={`Transaction amount in ${currencyCode}`} withArrow position="right">
             <NumberInput
-              label="Amount (AUD)"
+              label={`Amount (${currencyCode})`}
               placeholder="0.00"
               required
               min={0}

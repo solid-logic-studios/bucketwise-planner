@@ -12,18 +12,19 @@ export class MemoryBudgetProfileRepository implements BudgetProfileRepository {
   async saveProfile(userId: string, profile: BudgetProfile): Promise<void> {
     this.profiles.set(
       userId,
-      new BudgetProfile(
-        userId,
-        new Money(profile.fortnightlyIncome.cents),
-        profile.defaultFireExtinguisherBps,
-        profile.fixedExpenses.map((fx) => ({
-          ...fx,
-          amount: new Money(fx.amount.cents),
-        })),
-        profile.timezone || 'UTC',
-        profile.createdAt,
-        new Date(),
-      ),
-    );
+        new BudgetProfile(
+          userId,
+          new Money(profile.fortnightlyIncome.cents, profile.currencyCode),
+          profile.defaultFireExtinguisherBps,
+          profile.fixedExpenses.map((fx) => ({
+            ...fx,
+            amount: new Money(fx.amount.cents, profile.currencyCode),
+          })),
+          profile.timezone || 'UTC',
+          profile.createdAt,
+          new Date(),
+          profile.currencyCode,
+        ),
+      );
   }
 }

@@ -33,7 +33,7 @@ import { ErrorAlert } from '../components/ErrorAlert.js';
 import { useHelp } from '../components/help/useHelp.js';
 import { LoadingSpinner } from '../components/LoadingSpinner.js';
 import { usePageDataContext } from '../contexts/usePageDataContext.ts';
-import { formatCurrency, formatDateToISO } from '../utils/formatters.js';
+import { formatCurrency, formatDateToISO, getConfiguredCurrencyCode } from '../utils/formatters.js';
 
 const bucketOptions = [
   'Daily Expenses',
@@ -99,6 +99,7 @@ export function DebtsView() {
   const [adjustSubmitting, setAdjustSubmitting] = useState(false);
   const [adjustError, setAdjustError] = useState<string>();
   const [adjustDebt, setAdjustDebt] = useState<DebtDTO | null>(null);
+  const currencyCode = profile?.currencyCode ?? getConfiguredCurrencyCode();
 
   const recordForm = useForm<{
     description: string;
@@ -389,8 +390,8 @@ export function DebtsView() {
           <NumberInput
             label={
               frequency === 'fortnight'
-                ? 'Fortnightly Fire Extinguisher (AUD)'
-                : 'Monthly Fire Extinguisher (AUD)'
+                ? `Fortnightly Fire Extinguisher (${currencyCode})`
+                : `Monthly Fire Extinguisher (${currencyCode})`
             }
             description={
               frequency === 'fortnight'
@@ -581,7 +582,7 @@ export function DebtsView() {
           <TextInput label="Description" required {...recordForm.getInputProps('description')} />
 
           <NumberInput
-            label="Amount (AUD)"
+            label={`Amount (${currencyCode})`}
             required
             min={0}
             decimalScale={2}
@@ -629,7 +630,7 @@ export function DebtsView() {
           />
 
           <NumberInput
-            label="Amount (AUD)"
+            label={`Amount (${currencyCode})`}
             required
             min={0}
             decimalScale={2}
@@ -697,7 +698,7 @@ export function DebtsView() {
           <Stack gap="md">
             <Group grow align="flex-start">
               <NumberInput
-                label="Original Amount (AUD)"
+                label={`Original Amount (${currencyCode})`}
                 min={0}
                 decimalScale={2}
                 fixedDecimalScale
@@ -706,7 +707,7 @@ export function DebtsView() {
                 {...debtForm.getInputProps('originalAmountDollars')}
               />
               <NumberInput
-                label="Current Balance (AUD)"
+                label={`Current Balance (${currencyCode})`}
                 min={0}
                 decimalScale={2}
                 fixedDecimalScale
@@ -729,7 +730,7 @@ export function DebtsView() {
               />
 
               <NumberInput
-                label="Minimum Payment (AUD)"
+                label={`Minimum Payment (${currencyCode})`}
                 min={0}
                 decimalScale={2}
                 fixedDecimalScale
@@ -815,7 +816,7 @@ export function DebtsView() {
           <Stack gap="md">
             <Group grow align="flex-start">
               <NumberInput
-                label="Original Amount (AUD)"
+                label={`Original Amount (${currencyCode})`}
                 min={0}
                 decimalScale={2}
                 fixedDecimalScale
@@ -824,7 +825,7 @@ export function DebtsView() {
                 {...debtForm.getInputProps('originalAmountDollars')}
               />
               <NumberInput
-                label="Current Balance (AUD)"
+                label={`Current Balance (${currencyCode})`}
                 min={0}
                 decimalScale={2}
                 fixedDecimalScale
@@ -847,7 +848,7 @@ export function DebtsView() {
               />
 
               <NumberInput
-                label="Minimum Payment (AUD)"
+                label={`Minimum Payment (${currencyCode})`}
                 min={0}
                 decimalScale={2}
                 fixedDecimalScale

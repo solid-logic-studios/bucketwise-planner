@@ -24,7 +24,7 @@ import {
 } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
 import { api } from '../api/client.js';
-import type { ProfileDTO } from '../api/types.js';
+import type { CurrencyCode, ProfileDTO } from '../api/types.js';
 import { ErrorAlert } from '../components/ErrorAlert.js';
 import { useHelp } from '../components/help/useHelp.js';
 import { LoadingSpinner } from '../components/LoadingSpinner.js';
@@ -51,6 +51,7 @@ interface ProfileFormValues {
   fortnightlyIncomeDollars: number;
   defaultFireExtinguisherPercent: number;
   timezone: string;
+  currencyCode: CurrencyCode;
   fixedExpenses: FixedExpenseForm[];
 }
 
@@ -58,6 +59,7 @@ interface ProfilePayload {
   fortnightlyIncomeCents: number;
   defaultFireExtinguisherPercent: number;
   timezone: string;
+  currencyCode: CurrencyCode;
   fixedExpenses: Array<{
     id?: string;
     name: string;
@@ -71,6 +73,7 @@ function mapDtoToForm(dto: ProfileDTO): ProfileFormValues {
     fortnightlyIncomeDollars: dto.fortnightlyIncomeCents / 100,
     defaultFireExtinguisherPercent: dto.defaultFireExtinguisherPercent,
     timezone: dto.timezone || 'UTC',
+    currencyCode: dto.currencyCode || 'AUD',
     fixedExpenses: dto.fixedExpenses.map((fx) => ({
       id: fx.id,
       name: fx.name,
@@ -85,6 +88,7 @@ function mapFormToPayload(values: ProfileFormValues): ProfilePayload {
     fortnightlyIncomeCents: Math.round(values.fortnightlyIncomeDollars * 100),
     defaultFireExtinguisherPercent: values.defaultFireExtinguisherPercent,
     timezone: values.timezone,
+    currencyCode: values.currencyCode,
     fixedExpenses: values.fixedExpenses.map((fx) => ({
       id: fx.id,
       name: fx.name,
@@ -112,6 +116,7 @@ export function ProfileView() {
       fortnightlyIncomeDollars: 0,
       defaultFireExtinguisherPercent: 0,
       timezone: 'UTC',
+      currencyCode: 'AUD',
       fixedExpenses: [],
     },
     validate: {
@@ -387,7 +392,7 @@ export function ProfileView() {
           <form onSubmit={form.onSubmit(handleSubmit)}>
             <Stack gap="md">
               <NumberInput
-                label="Fortnightly Income (AUD)"
+                label={`Fortnightly Income (${form.values.currencyCode})`}
                 description="Your typical take-home amount every two weeks"
                 min={0}
                 decimalScale={2}
@@ -410,8 +415,20 @@ export function ProfileView() {
               />
 
               <Text size="sm" c="dimmed">
-                ≈ {formatCurrency(computedFireExtinguisherCents)} per fortnight at this percent
+                ≈ {formatCurrency(computedFireExtinguisherCents, form.values.currencyCode)} per
+                fortnight at this percent
               </Text>
+              <Select
+                label="Currency"
+                description="Used for money inputs and formatting across the app"
+                required
+                data={[
+                  { value: 'AUD', label: 'AUD - Australian Dollar' },
+                  { value: 'USD', label: 'USD - US Dollar' },
+                  { value: 'NZD', label: 'NZD - New Zealand Dollar' },
+                ]}
+                {...form.getInputProps('currencyCode')}
+              />
               {/* TODO: This should not be hardcoded, should pull from a source or static file */}
               <Select
                 label="Timezone"
@@ -486,7 +503,7 @@ export function ProfileView() {
                         />
 
                         <NumberInput
-                          label="Amount (AUD)"
+                          label={`Amount (${form.values.currencyCode})`}
                           min={0}
                           decimalScale={2}
                           fixedDecimalScale

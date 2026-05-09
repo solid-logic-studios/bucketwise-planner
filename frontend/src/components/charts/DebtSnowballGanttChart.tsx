@@ -2,6 +2,7 @@ import { Badge, Box, Card, Group, Stack, Text } from '@mantine/core';
 import { useEffect, useMemo, useState } from 'react';
 import { api } from '../../api/client.js';
 import type { DebtDTO, DebtPayoffPlanDTO, FortnightlyTimelineEntry, ProfileDTO } from '../../api/types.js';
+import { formatCurrency } from '../../utils/formatters.js';
 import classes from './DebtSnowballGanttChart.module.css';
 
 interface DebtSnowballGanttChartProps {
@@ -83,7 +84,9 @@ export function DebtSnowballGanttChart({ currentFortnightId }: DebtSnowballGantt
         <Text fw={600}>Snowball Gantt</Text>
         <Group gap={8}>
           {profile ? (
-            <Badge variant="light" color="accent" size="sm">FE: ${ (profile.defaultFireExtinguisherAmountCents / 100).toFixed(0) }/fortnight</Badge>
+            <Badge variant="light" color="accent" size="sm">
+              FE: {formatCurrency(profile.defaultFireExtinguisherAmountCents)}/fortnight
+            </Badge>
           ) : null}
           {plan ? (
             <Badge variant="light" color="amber" size="sm">~{Math.ceil(totalFortnights / 2)} months</Badge>

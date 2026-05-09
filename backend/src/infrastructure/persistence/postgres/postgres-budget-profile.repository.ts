@@ -2,6 +2,7 @@ import { randomUUID } from 'crypto';
 import type { Pool } from 'pg';
 import type { BarefootBucket } from '../../../domain/model/barefoot-bucket.js';
 import { BudgetProfile, type FixedExpense } from '../../../domain/model/budget-profile.entity.js';
+import { DEFAULT_CURRENCY_CODE, type CurrencyCode } from '../../../domain/model/currency-code.js';
 import { Money } from '../../../domain/model/money.js';
 import type { BudgetProfileRepository } from '../../../domain/repositories/budget-profile.repository.interface.js';
 
@@ -17,6 +18,7 @@ type ProfileRow = {
     amountCents: number;
   }>;
   timezone: string;
+  currency_code?: CurrencyCode;
   created_at: string;
   updated_at: string;
 };
@@ -45,8 +47,8 @@ export class PostgresBudgetProfileRepository implements BudgetProfileRepository 
 
     const query = `
       INSERT INTO budget_profiles (
-        user_id, fortnightly_income_cents, default_fire_extinguisher_cents, default_fire_extinguisher_bps, fixed_expenses, timezone, created_at, updated_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
+        user_id, fortnightly_income_cents, default_fire_extinguisher_cents, default_fire_extinguisher_bps, fixed_expenses, timezone, currency_code, created_at, updated_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), NOW())
       ON CONFLICT (user_id)
       DO UPDATE SET
         fortnightly_income_cents = EXCLUDED.fortnightly_income_cents,
@@ -54,6 +56,7 @@ export class PostgresBudgetProfileRepository implements BudgetProfileRepository 
         default_fire_extinguisher_bps = EXCLUDED.default_fire_extinguisher_bps,
         fixed_expenses = EXCLUDED.fixed_expenses,
         timezone = EXCLUDED.timezone,
+        currency_code = EXCLUDED.currency_code,
         updated_at = NOW();
     `;
 
@@ -64,25 +67,28 @@ export class PostgresBudgetProfileRepository implements BudgetProfileRepository 
       profile.defaultFireExtinguisherBps,
       JSON.stringify(fixedExpenses),
       profile.timezone,
+      profile.currencyCode,
     ]);
   }
 
   private mapRow(row: ProfileRow): BudgetProfile {
+    const currencyCode = row.currency_code ?? DEFAULT_CURRENCY_CODE;
     const fixedExpenses: FixedExpense[] = (row.fixed_expenses ?? []).map((fx) => ({
       id: fx.id || randomUUID(),
       name: fx.name,
       bucket: fx.bucket,
-      amount: new Money(Number(fx.amountCents)),
+      amount: new Money(Number(fx.amountCents), currencyCode),
     }));
 
     return new BudgetProfile(
       row.user_id,
-      new Money(Number(row.fortnightly_income_cents)),
+      new Money(Number(row.fortnightly_income_cents), currencyCode),
       this.resolveBps(row),
       fixedExpenses,
       row.timezone || 'UTC',
       new Date(row.created_at),
       new Date(row.updated_at),
+      currencyCode,
     );
   }
 
