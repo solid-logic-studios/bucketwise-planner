@@ -1,19 +1,18 @@
-export const supportedCurrencyCodes = ['AUD', 'USD', 'NZD'] as const;
-export type SupportedCurrencyCode = (typeof supportedCurrencyCodes)[number];
+import { supportedCurrencyCodes, type CurrencyCode } from '../api/types.js';
 
-const DEFAULT_CURRENCY_CODE: SupportedCurrencyCode = 'AUD';
+const DEFAULT_CURRENCY_CODE: CurrencyCode = 'AUD';
 
-const CURRENCY_FORMAT_BY_CODE: Record<SupportedCurrencyCode, { locale: string; currency: string }> = {
+const CURRENCY_FORMAT_BY_CODE: Record<CurrencyCode, { locale: string; currency: string }> = {
   AUD: { locale: 'en-AU', currency: 'AUD' },
   USD: { locale: 'en-US', currency: 'USD' },
   NZD: { locale: 'en-NZ', currency: 'NZD' },
 };
 
-function isSupportedCurrencyCode(value: string): value is SupportedCurrencyCode {
-  return supportedCurrencyCodes.includes(value as SupportedCurrencyCode);
+function isSupportedCurrencyCode(value: string): value is CurrencyCode {
+  return supportedCurrencyCodes.includes(value as CurrencyCode);
 }
 
-export const getConfiguredCurrencyCode = (): SupportedCurrencyCode => {
+export const getConfiguredCurrencyCode = (): CurrencyCode => {
   if (typeof window === 'undefined') return DEFAULT_CURRENCY_CODE;
 
   const value = localStorage.getItem('currencyCode');
@@ -26,7 +25,7 @@ export const getConfiguredCurrencyCode = (): SupportedCurrencyCode => {
 
 export const formatCurrency = (
   cents?: number,
-  currencyCode: SupportedCurrencyCode = getConfiguredCurrencyCode()
+  currencyCode: CurrencyCode = getConfiguredCurrencyCode()
 ): string => {
   if (cents === undefined) return '-';
   const format = CURRENCY_FORMAT_BY_CODE[currencyCode] ?? CURRENCY_FORMAT_BY_CODE.AUD;

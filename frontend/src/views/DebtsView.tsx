@@ -409,7 +409,7 @@ export function DebtsView() {
           />
 
           <Text size="sm" c="dimmed">
-            Using {formatCurrency(monthlyCents)} per month for payoff calculation.
+            Using {formatCurrency(monthlyCents, currencyCode)} per month for payoff calculation.
           </Text>
 
           <Alert icon={<IconBulb size={16} />} color="yellow" variant="light" radius="md">
@@ -420,9 +420,12 @@ export function DebtsView() {
           {profile && profile.defaultFireExtinguisherAmountCents > 0 && (
             <Group justify="space-between" align="center">
               <Text size="sm" c="dimmed">
-                From profile: {formatCurrency(profile.defaultFireExtinguisherAmountCents)} per
+                From profile: {formatCurrency(profile.defaultFireExtinguisherAmountCents, currencyCode)} per
                 fortnight →
-                {formatCurrency(Math.round(profile.defaultFireExtinguisherAmountCents * (26 / 12)))}{' '}
+                {formatCurrency(
+                  Math.round(profile.defaultFireExtinguisherAmountCents * (26 / 12)),
+                  currencyCode
+                )}{' '}
                 per month
               </Text>
               <Button
@@ -495,19 +498,19 @@ export function DebtsView() {
                   <Table.Tr key={debt.id}>
                     <Table.Td>{debt.name}</Table.Td>
                     <Table.Td>{debt.debtType}</Table.Td>
-                    <Table.Td>{formatCurrency(debt.currentBalanceCents)}</Table.Td>
+                    <Table.Td>{formatCurrency(debt.currentBalanceCents, currencyCode)}</Table.Td>
                     <Table.Td>{(debt.interestRate * 100).toFixed(2)}%</Table.Td>
                     <Table.Td>
                       <Stack gap={2}>
                         <Group gap={6} align="center">
-                          <Text fw={500}>{formatCurrency(debt.minimumPaymentCents)}</Text>
+                          <Text fw={500}>{formatCurrency(debt.minimumPaymentCents, currencyCode)}</Text>
                           <Badge size="xs" variant="light" color="gray">
                             {debt.minPaymentFrequency === 'MONTHLY' ? 'Monthly' : 'Fortnightly'}
                           </Badge>
                         </Group>
                         {debt.minPaymentFrequency === 'MONTHLY' && (
                           <Text size="xs" c="dimmed">
-                            ≈ {formatCurrency(Math.round(debt.minimumPaymentCents * (12 / 26)))} per
+                            ≈ {formatCurrency(Math.round(debt.minimumPaymentCents * (12 / 26)), currencyCode)} per
                             fortnight
                           </Text>
                         )}
@@ -556,7 +559,11 @@ export function DebtsView() {
       {state.error && <ErrorAlert title="Error loading payoff plan" message={state.error} />}
 
       {state.data && (
-        <PayoffPlanContent plan={state.data} currentFortnightId={currentFortnightId ?? undefined} />
+        <PayoffPlanContent
+          plan={state.data}
+          currentFortnightId={currentFortnightId ?? undefined}
+          currencyCode={currencyCode}
+        />
       )}
 
       <Modal
@@ -906,9 +913,11 @@ export function DebtsView() {
 function PayoffPlanContent({
   plan,
   currentFortnightId,
+  currencyCode,
 }: {
   plan: DebtPayoffPlanDTO;
   currentFortnightId?: string;
+  currencyCode: ProfileDTO['currencyCode'];
 }) {
   const { totalFortnightsToPayoff, totalInterestCents, timeline } = plan;
 
@@ -935,7 +944,7 @@ function PayoffPlanContent({
               Total Interest Paid
             </Text>
             <Text size="xl" fw={700} c="red">
-              {formatCurrency(totalInterestCents)}
+              {formatCurrency(totalInterestCents, currencyCode)}
             </Text>
           </Stack>
         </Card>
@@ -981,21 +990,21 @@ function PayoffPlanContent({
                     )}
                   </Table.Td>
                   <Table.Td>
-                    <Text fw={600}>{formatCurrency(period.paymentToActiveDebtCents)}</Text>
+                    <Text fw={600}>{formatCurrency(period.paymentToActiveDebtCents, currencyCode)}</Text>
                   </Table.Td>
                   <Table.Td>
                     {period.debtBeingPaid ? (
-                      <Text>{formatCurrency(period.remainingBalanceOfActiveDebtCents)}</Text>
+                      <Text>{formatCurrency(period.remainingBalanceOfActiveDebtCents, currencyCode)}</Text>
                     ) : (
                       <Text c="dimmed">—</Text>
                     )}
                   </Table.Td>
                   <Table.Td>
-                    <Text fw={600}>{formatCurrency(period.totalDebtRemainingCents)}</Text>
+                    <Text fw={600}>{formatCurrency(period.totalDebtRemainingCents, currencyCode)}</Text>
                   </Table.Td>
                   <Table.Td>
                     <Text size="sm" c="dimmed">
-                      {formatCurrency(period.interestCents)}
+                      {formatCurrency(period.interestCents, currencyCode)}
                     </Text>
                   </Table.Td>
                 </Table.Tr>
@@ -1020,10 +1029,10 @@ function PayoffPlanContent({
                         </Group>
                       </Table.Td>
                       <Table.Td>
-                        <Text size="sm">{formatCurrency(minPayment.minimumPaymentCents)}</Text>
+                        <Text size="sm">{formatCurrency(minPayment.minimumPaymentCents, currencyCode)}</Text>
                       </Table.Td>
                       <Table.Td>
-                        <Text size="sm">{formatCurrency(minPayment.remainingBalanceCents)}</Text>
+                        <Text size="sm">{formatCurrency(minPayment.remainingBalanceCents, currencyCode)}</Text>
                       </Table.Td>
                       <Table.Td />
                       <Table.Td />

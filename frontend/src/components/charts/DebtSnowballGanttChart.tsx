@@ -85,7 +85,7 @@ export function DebtSnowballGanttChart({ currentFortnightId }: DebtSnowballGantt
         <Group gap={8}>
           {profile ? (
             <Badge variant="light" color="accent" size="sm">
-              FE: {formatCurrency(profile.defaultFireExtinguisherAmountCents)}/fortnight
+              FE: {formatCurrency(profile.defaultFireExtinguisherAmountCents, profile.currencyCode)}/fortnight
             </Badge>
           ) : null}
           {plan ? (

@@ -206,7 +206,9 @@ export interface FixedExpenseDTO {
   amountCents: number;
 }
 
-export type CurrencyCode = 'AUD' | 'USD' | 'NZD';
+export const supportedCurrencyCodes = ['AUD', 'USD', 'NZD'] as const;
+
+export type CurrencyCode = (typeof supportedCurrencyCodes)[number];
 
 export interface ProfileDTO {
   fortnightlyIncomeCents: number;

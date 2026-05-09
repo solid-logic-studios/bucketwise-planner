@@ -220,7 +220,7 @@ export function TransactionsTable({
                               <Table.Td>
                                 <TransactionKindBadge kind={tx.kind} />
                               </Table.Td>
-                              <Table.Td>{formatCurrency(tx.amountCents)}</Table.Td>
+                              <Table.Td>{formatCurrency(tx.amountCents, currencyCode)}</Table.Td>
                               <Table.Td>
                                 {tx.tags && tx.tags.length > 0 && (
                                   <Group gap={4}>

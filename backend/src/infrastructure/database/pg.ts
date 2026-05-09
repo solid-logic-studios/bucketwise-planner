@@ -94,9 +94,11 @@ export async function ensureSchema(pool: Pool): Promise<void> {
       default_fire_extinguisher_cents INTEGER NOT NULL DEFAULT 0,
       default_fire_extinguisher_bps INTEGER NOT NULL DEFAULT 0,
       fixed_expenses JSONB NOT NULL DEFAULT '[]',
-      currency_code TEXT NOT NULL DEFAULT 'AUD' CHECK (currency_code IN ('AUD', 'USD', 'NZD')),
+      currency_code TEXT NOT NULL DEFAULT 'AUD',
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      CONSTRAINT budget_profiles_currency_code_check
+        CHECK (currency_code IN ('AUD', 'USD', 'NZD'))
     );
 
     CREATE TABLE IF NOT EXISTS skipped_debt_payments (
@@ -147,7 +149,24 @@ export async function ensureSchema(pool: Pool): Promise<void> {
     ALTER TABLE debts ADD COLUMN IF NOT EXISTS min_payment_frequency TEXT NOT NULL DEFAULT 'FORTNIGHTLY' CHECK (min_payment_frequency IN ('FORTNIGHTLY','MONTHLY'));
     ALTER TABLE debts ADD COLUMN IF NOT EXISTS annual_fee_cents INTEGER NOT NULL DEFAULT 0;
     ALTER TABLE budget_profiles ADD COLUMN IF NOT EXISTS currency_code TEXT NOT NULL DEFAULT 'AUD';
-    ALTER TABLE budget_profiles DROP CONSTRAINT IF EXISTS budget_profiles_currency_code_check;
-    ALTER TABLE budget_profiles ADD CONSTRAINT budget_profiles_currency_code_check CHECK (currency_code IN ('AUD', 'USD', 'NZD'));
+    DO $$
+    DECLARE
+      constraint_name TEXT;
+    BEGIN
+      FOR constraint_name IN
+        SELECT con.conname
+        FROM pg_constraint con
+        JOIN pg_class rel ON rel.oid = con.conrelid
+        JOIN pg_namespace nsp ON nsp.oid = rel.relnamespace
+        WHERE rel.relname = 'budget_profiles'
+          AND nsp.nspname = current_schema()
+          AND con.contype = 'c'
+          AND pg_get_constraintdef(con.oid) LIKE '%currency_code%'
+      LOOP
+        EXECUTE format('ALTER TABLE budget_profiles DROP CONSTRAINT %I', constraint_name);
+      END LOOP;
+
+      EXECUTE 'ALTER TABLE budget_profiles ADD CONSTRAINT budget_profiles_currency_code_check CHECK (currency_code IN (''AUD'', ''USD'', ''NZD''))';
+    END $$;
   `);
 }
