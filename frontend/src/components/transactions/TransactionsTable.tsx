@@ -1,9 +1,9 @@
 import { ActionIcon, Badge, Group, Pagination, Select, Stack, Table, Text, TextInput, Tooltip } from '@mantine/core';
 import { IconEdit, IconRefresh, IconTrash, IconX } from '@tabler/icons-react';
 import type { Dispatch, SetStateAction } from 'react';
-import type { TransactionDTO } from '../../api/types.js';
+import type { CurrencyCode, TransactionDTO } from '../../api/types.js';
 import { bucketOptions, type TransactionFilters, type TransactionState } from '../../hooks/transactions/types.js';
-import { formatCurrency, formatDateTime, getConfiguredCurrencyCode } from '../../utils/formatters.js';
+import { formatCurrency, formatDateTime } from '../../utils/formatters.js';
 import { filterTransactionsBySearch, groupTransactions, type GroupBy } from '../../utils/transactions.js';
 import { BucketBadge } from '../BucketBadge.js';
 import { EmptyState } from '../EmptyState.js';
@@ -19,6 +19,7 @@ interface TransactionsTableProps {
   groupBy: GroupBy;
   onGroupByChange: (mode: GroupBy) => void;
   state: TransactionState;
+  currencyCode: CurrencyCode;
   isHistoricalFortnight: boolean;
   onRefresh: () => void;
   onEdit: (tx: TransactionDTO) => void;
@@ -37,6 +38,7 @@ export function TransactionsTable({
   groupBy,
   onGroupByChange,
   state,
+  currencyCode,
   isHistoricalFortnight,
   onRefresh,
   onEdit,
@@ -46,8 +48,6 @@ export function TransactionsTable({
   currentPage,
   onPageChange,
 }: TransactionsTableProps) {
-  const currencyCode = getConfiguredCurrencyCode();
-
   const showPagination = state.total > pageSize;
 
   return (

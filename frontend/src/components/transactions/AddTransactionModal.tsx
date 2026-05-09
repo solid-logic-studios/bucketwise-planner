@@ -1,9 +1,8 @@
 import { Button, Checkbox, Group, Modal, NumberInput, Radio, Select, Stack, TagsInput, TextInput, Tooltip } from '@mantine/core';
 import { DateTimePicker } from '@mantine/dates';
 import type { UseFormReturnType } from '@mantine/form';
-import type { DebtDTO } from '../../api/types.js';
+import type { CurrencyCode, DebtDTO } from '../../api/types.js';
 import { bucketOptions, type TransactionFormValues } from '../../hooks/transactions/types.js';
-import { getConfiguredCurrencyCode } from '../../utils/formatters.js';
 import { ErrorAlert } from '../ErrorAlert.js';
 
 interface AddTransactionModalProps {
@@ -12,6 +11,7 @@ interface AddTransactionModalProps {
   onClose: () => void;
   form: UseFormReturnType<TransactionFormValues>;
   debts: DebtDTO[];
+  currencyCode: CurrencyCode;
   submitting: boolean;
   submitError?: string;
   suggestedTags?: string[];
@@ -24,13 +24,13 @@ export function AddTransactionModal({
   onClose,
   form,
   debts,
+  currencyCode,
   submitting,
   submitError,
   suggestedTags = [],
   onSubmit,
 }: AddTransactionModalProps) {
   const isTransfer = form.values.kind === 'transfer';
-  const currencyCode = getConfiguredCurrencyCode();
 
   return (
     <Modal opened={opened && !isHistoricalFortnight} onClose={onClose} title="Add Transaction" size="md">

@@ -88,7 +88,6 @@ export class PostgresBudgetProfileRepository implements BudgetProfileRepository 
       row.timezone || 'UTC',
       new Date(row.created_at),
       new Date(row.updated_at),
-      currencyCode,
     );
   }
 

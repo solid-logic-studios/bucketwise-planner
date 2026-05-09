@@ -415,8 +415,7 @@ export function ProfileView() {
               />
 
               <Text size="sm" c="dimmed">
-                ≈ {formatCurrency(computedFireExtinguisherCents, form.values.currencyCode)} per
-                fortnight at this percent
+                ≈ {formatCurrency(computedFireExtinguisherCents, form.values.currencyCode)} per fortnight at this percent
               </Text>
               <Select
                 label="Currency"

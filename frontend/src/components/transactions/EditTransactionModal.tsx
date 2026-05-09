@@ -1,23 +1,32 @@
 import { Button, Group, Modal, NumberInput, Radio, Select, Stack, TagsInput, TextInput, Tooltip } from '@mantine/core';
 import { DateTimePicker } from '@mantine/dates';
 import type { UseFormReturnType } from '@mantine/form';
+import type { CurrencyCode } from '../../api/types.js';
 import { bucketOptions, type TransactionFormValues } from '../../hooks/transactions/types.js';
-import { getConfiguredCurrencyCode } from '../../utils/formatters.js';
 import { ErrorAlert } from '../ErrorAlert.js';
 
 interface EditTransactionModalProps {
   opened: boolean;
   onClose: () => void;
   form: UseFormReturnType<Omit<TransactionFormValues, 'debtPayment' | 'debtId'>>;
+  currencyCode: CurrencyCode;
   submitting: boolean;
   submitError?: string;
   suggestedTags?: string[];
   onSubmit: (values: Omit<TransactionFormValues, 'debtPayment' | 'debtId'>) => void;
 }
 
-export function EditTransactionModal({ opened, onClose, form, submitting, submitError, suggestedTags = [], onSubmit }: EditTransactionModalProps) {
+export function EditTransactionModal({
+  opened,
+  onClose,
+  form,
+  currencyCode,
+  submitting,
+  submitError,
+  suggestedTags = [],
+  onSubmit,
+}: EditTransactionModalProps) {
   const isTransfer = form.values.kind === 'transfer';
-  const currencyCode = getConfiguredCurrencyCode();
 
   return (
     <Modal opened={opened} onClose={onClose} title="Edit Transaction" centered>

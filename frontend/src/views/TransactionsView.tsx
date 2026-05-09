@@ -3,7 +3,7 @@ import { useForm } from '@mantine/form';
 import { useHotkeys } from '@mantine/hooks';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { api } from '../api/client.js';
-import type { DebtDTO, TransactionDTO } from '../api/types.js';
+import type { CurrencyCode, DebtDTO, TransactionDTO } from '../api/types.js';
 import { FortnightSelector } from '../components/FortnightSelector.js';
 import { useHelp } from '../components/help/useHelp.js';
 import {
@@ -31,7 +31,7 @@ import { useDebtPayments } from '../hooks/transactions/useDebtPayments.js';
 import { useFortnightDetail } from '../hooks/transactions/useFortnightDetail.js';
 import { useTransactionsData } from '../hooks/transactions/useTransactionsData.js';
 import { useThemeColors } from '../hooks/useThemeColors.js';
-import { formatDate, formatDateToISO } from '../utils/formatters.js';
+import { formatDate, formatDateToISO, getConfiguredCurrencyCode } from '../utils/formatters.js';
 import {
   calculateBudgetVariance,
   calculateComplianceScore,
@@ -492,6 +492,7 @@ export function TransactionsView() {
   };
 
   const plannedPayments = useMemo(() => getPlannedPayments(fortnightEntry), [fortnightEntry]);
+  const currencyCode: CurrencyCode = profile?.currencyCode ?? getConfiguredCurrencyCode();
   const completedPayments = plannedPayments.filter((p) => isPaymentCompleted(p.id)).length;
   const skippedPaymentsCount = plannedPayments.filter(
     (p) => getPaymentStatus(p.id) === 'skipped',
@@ -586,6 +587,7 @@ export function TransactionsView() {
           groupBy={groupBy}
           onGroupByChange={setGroupBy}
           state={state}
+          currencyCode={currencyCode}
           isHistoricalFortnight={isHistoricalFortnight}
           onRefresh={loadTransactions}
           onEdit={handleEditTransaction}
@@ -618,6 +620,7 @@ export function TransactionsView() {
         onClose={() => setAddModalOpen(false)}
         form={form}
         debts={debts}
+        currencyCode={currencyCode}
         submitting={submitting}
         submitError={submitError}
         suggestedTags={suggestedTags}
@@ -628,6 +631,7 @@ export function TransactionsView() {
         opened={editModalOpen}
         onClose={() => setEditModalOpen(false)}
         form={editForm}
+        currencyCode={currencyCode}
         submitting={editSubmitting}
         submitError={editError}
         suggestedTags={suggestedTags}

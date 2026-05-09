@@ -2,7 +2,6 @@ import { ValidationError } from '../exceptions/validation-error.js';
 import type { BarefootBucket } from './barefoot-bucket.js';
 import { BaseEntity } from './base.entity.js';
 import {
-  DEFAULT_CURRENCY_CODE,
   type CurrencyCode,
   isSupportedCurrencyCode,
 } from './currency-code.js';
@@ -29,8 +28,7 @@ export class BudgetProfile extends BaseEntity {
     fixedExpenses: FixedExpense[],
     timezone: string = 'UTC',
     createdAt?: Date,
-    updatedAt?: Date,
-    currencyCode: CurrencyCode = DEFAULT_CURRENCY_CODE
+    updatedAt?: Date
   ) {
     super(id, createdAt, updatedAt);
     if (fortnightlyIncome.cents < 0) {
@@ -39,6 +37,7 @@ export class BudgetProfile extends BaseEntity {
     if (defaultFireExtinguisherBps < 0 || defaultFireExtinguisherBps > 10000) {
       throw new ValidationError('Default Fire Extinguisher percent must be between 0 and 100');
     }
+    const currencyCode = fortnightlyIncome.currency;
     if (!isSupportedCurrencyCode(currencyCode)) {
       throw new ValidationError(
         `Unsupported currency code: ${currencyCode}. Supported values are AUD, USD, NZD.`
@@ -48,7 +47,7 @@ export class BudgetProfile extends BaseEntity {
     this.defaultFireExtinguisherBps = Math.round(defaultFireExtinguisherBps);
     this.fixedExpenses = fixedExpenses;
     this.timezone = timezone;
-    this.currencyCode = currencyCode;
+    this.currencyCode = currencyCode as CurrencyCode;
   }
 
   get defaultFireExtinguisherAmount(): Money {

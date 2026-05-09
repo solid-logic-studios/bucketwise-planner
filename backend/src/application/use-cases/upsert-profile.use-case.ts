@@ -2,7 +2,7 @@ import { randomUUID } from 'crypto';
 import type { BarefootBucket } from '../../domain/model/barefoot-bucket.js';
 import type { FixedExpense } from '../../domain/model/budget-profile.entity.js';
 import { BudgetProfile } from '../../domain/model/budget-profile.entity.js';
-import { DEFAULT_CURRENCY_CODE, type CurrencyCode } from '../../domain/model/currency-code.js';
+import type { CurrencyCode } from '../../domain/model/currency-code.js';
 import { Money } from '../../domain/model/money.js';
 import type { BudgetProfileRepository } from '../../domain/repositories/budget-profile.repository.interface.js';
 import { UseCase } from './base.use-case.js';
@@ -19,7 +19,7 @@ export interface UpsertProfileInput {
     amountCents: number;
   }>;
   timezone?: string;
-  currencyCode?: CurrencyCode;
+  currencyCode: CurrencyCode;
 }
 
 export class UpsertProfileUseCase extends UseCase<UpsertProfileInput, ProfileDTO> {
@@ -28,7 +28,7 @@ export class UpsertProfileUseCase extends UseCase<UpsertProfileInput, ProfileDTO
   }
 
   async execute(input: UpsertProfileInput): Promise<ProfileDTO> {
-    const currencyCode = input.currencyCode ?? DEFAULT_CURRENCY_CODE;
+    const currencyCode = input.currencyCode;
     const fixedExpenses: FixedExpense[] = input.fixedExpenses.map((fx) => ({
       id: fx.id || randomUUID(),
       name: fx.name,
@@ -42,9 +42,6 @@ export class UpsertProfileUseCase extends UseCase<UpsertProfileInput, ProfileDTO
       Math.round(input.defaultFireExtinguisherPercent * 100),
       fixedExpenses,
       input.timezone || 'UTC',
-      undefined,
-      undefined,
-      currencyCode
     );
 
     await this.repo.saveProfile(input.userId, profile);

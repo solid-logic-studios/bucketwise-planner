@@ -9,11 +9,15 @@ const CURRENCY_FORMAT_BY_CODE: Record<SupportedCurrencyCode, { locale: string; c
   NZD: { locale: 'en-NZ', currency: 'NZD' },
 };
 
+function isSupportedCurrencyCode(value: string): value is SupportedCurrencyCode {
+  return supportedCurrencyCodes.includes(value as SupportedCurrencyCode);
+}
+
 export const getConfiguredCurrencyCode = (): SupportedCurrencyCode => {
   if (typeof window === 'undefined') return DEFAULT_CURRENCY_CODE;
 
   const value = localStorage.getItem('currencyCode');
-  if (value === 'USD' || value === 'NZD' || value === 'AUD') {
+  if (value && isSupportedCurrencyCode(value)) {
     return value;
   }
 
