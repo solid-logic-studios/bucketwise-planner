@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.9] - 2026-05-09
+
+### Added
+
+- Configurable profile currency MVP with support for `AUD`, `USD`, and `NZD`
+- Profile-level currency selection in the frontend Profile view
+- Database migration `005-add-profile-currency-code.sql` to persist `budget_profiles.currency_code`
+
+### Changed
+
+- Money labels and formatting in profile/debt/transaction flows now use the configured profile currency instead of hardcoded AUD
+- Profile API now accepts and returns `currencyCode`
+
+### Migration Notes
+
+1. Migration `005-add-profile-currency-code.sql` runs automatically on backend startup
+2. Existing profiles default to `AUD` until updated
+
 ## [0.4.8] - 2026-05-09
 
 ### Added
@@ -272,6 +290,7 @@ Learn more: https://www.barefootinvestor.com/
 
 ---
 
+[0.4.9]: https://github.com/solid-logic-studios/bucketwise-planner/releases/tag/v0.4.9
 [0.4.6]: https://github.com/solid-logic-studios/bucketwise-planner/releases/tag/v0.4.6
 [0.4.8]: https://github.com/solid-logic-studios/bucketwise-planner/releases/tag/v0.4.8
 [0.4.5]: https://github.com/solid-logic-studios/bucketwise-planner/releases/tag/v0.4.5
