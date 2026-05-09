@@ -2,7 +2,7 @@ name: bucketwise-planner
 
 services:
   frontend:
-    image: slsadmin/bucketwise-planner-frontend:0.4.7
+    image: slsadmin/bucketwise-planner-frontend:0.4.8
     depends_on:
       - backend
     restart: unless-stopped
@@ -17,7 +17,7 @@ services:
             en_US: Bucketwise Planner web interface.
 
   backend:
-    image: slsadmin/bucketwise-planner-backend:0.4.7
+    image: slsadmin/bucketwise-planner-backend:0.4.8
     environment:
       NODE_ENV: production
       PORT: 3000
@@ -27,6 +27,7 @@ services:
       ADMIN_SECRET: ${ADMIN_SECRET}
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
       AI_ENABLED: ${AI_ENABLED:-false}
+      GEMINI_MODEL: ${GEMINI_MODEL:-}
       DB_SCHEMA_MODE: ${DB_SCHEMA_MODE:-manual}
     restart: unless-stopped
     volumes:
@@ -50,6 +51,9 @@ services:
         - container: AI_ENABLED
           description:
             en_US: Set to true only when GEMINI_API_KEY is configured.
+        - container: GEMINI_MODEL
+          description:
+            en_US: Optional Gemini model override, for example gemini-flash-latest when provider compatibility requires it.
         - container: DB_SCHEMA_MODE
           description:
             en_US: Use manual to prevent routine restarts from applying schema changes automatically.
@@ -94,3 +98,4 @@ x-casaos:
         Recommended for managed deployments:
         - Keep `DB_SCHEMA_MODE=manual` for routine restarts
         - Only switch to `auto` during a planned upgrade that requires schema changes
+        - Recreate the backend after changing `AI_ENABLED`, `GEMINI_API_KEY`, or `GEMINI_MODEL`
