@@ -17,6 +17,7 @@ import { IconSend, IconTrash } from '@tabler/icons-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { isApiClientError } from '../api/errors';
 import { useChat } from '../hooks/useChat';
 import { usePageContext } from '../hooks/usePageContext';
 import { showSuccess } from '../utils/notifications';
@@ -46,7 +47,7 @@ import { TokenUsageIndicator } from './TokenUsageIndicator';
  */
 export function ChatWidget() {
   const { isOpen, closeChat } = useChatContext();
-  const { messages, isLoading, error, totalTokensUsed, sendMessage, clearMessages } = useChat();
+  const { messages, isLoading, error, totalTokensUsed, sendMessage, clearError, clearMessages } = useChat();
   const pageContext = usePageContext();
   const [inputValue, setInputValue] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -143,6 +144,9 @@ export function ChatWidget() {
     [pageContext?.page, getEmptyStateSuggestions]
   );
 
+  const isAiDisabledError =
+    isApiClientError(error) && error.statusCode === 404;
+
   return (
     <Drawer
       opened={isOpen}
@@ -179,7 +183,7 @@ export function ChatWidget() {
         <Divider />
 
         {/* AI Disabled notice */}
-        {error?.includes('404') || error?.includes('not found') ? (
+        {isAiDisabledError ? (
           <Alert color="yellow" title="AI Advisor Disabled" icon={null}>
             <Stack gap="xs">
               <Text size="sm">
@@ -189,8 +193,11 @@ export function ChatWidget() {
                 <ol style={{ margin: '8px 0', paddingLeft: '20px' }}>
                   <li>Set <code>AI_ENABLED=true</code> in backend .env</li>
                   <li>Set <code>GEMINI_API_KEY=your_key</code> in backend .env</li>
-                  <li>Restart the backend service</li>
+                  <li>Reload the backend configuration</li>
                 </ol>
+                Docker Compose: <code>docker compose up -d --force-recreate backend</code>
+                <br />
+                Manual backend: restart <code>pnpm dev</code>
               </Text>
               <Text size="xs" c="dimmed">
                 See <a href="https://github.com/PaulAtkins88/bucketwise-planner/blob/main/docs/AI_ADVISOR.md" target="_blank" rel="noopener noreferrer">AI_ADVISOR.md</a> for details.
@@ -198,8 +205,8 @@ export function ChatWidget() {
             </Stack>
           </Alert>
         ) : error ? (
-          <Alert color="red" title="Error" withCloseButton onClose={() => null}>
-            {error}
+          <Alert color="red" title="Error" withCloseButton onClose={clearError}>
+            {error.message}
           </Alert>
         ) : null}
 

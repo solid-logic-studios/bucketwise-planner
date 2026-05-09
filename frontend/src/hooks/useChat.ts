@@ -1,4 +1,6 @@
 import { useCallback, useState } from 'react';
+import type { ApiClientError } from '../api/errors';
+import { getErrorMessage } from '../api/errors';
 import { api } from '../api/client';
 import type { ChatMessage, PageContext } from '../api/types';
 import { generateUUID } from '../utils/uuid';
@@ -6,9 +8,10 @@ import { generateUUID } from '../utils/uuid';
 interface UseChatResult {
   messages: ChatMessage[];
   isLoading: boolean;
-  error: string | null;
+  error: ApiClientError | Error | null;
   totalTokensUsed: number;
   sendMessage: (message: string, pageContext?: PageContext) => Promise<void>;
+  clearError: () => void;
   clearMessages: () => void;
 }
 
@@ -35,7 +38,7 @@ interface UseChatResult {
 export function useChat(): UseChatResult {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<ApiClientError | Error | null>(null);
   const [totalTokensUsed, setTotalTokensUsed] = useState(0);
 
   const sendMessage = useCallback(async (messageText: string, pageContext?: PageContext) => {
@@ -89,8 +92,8 @@ export function useChat(): UseChatResult {
         setTotalTokensUsed((prev) => prev + (response.tokenUsage?.totalTokens ?? 0));
       }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to send message';
-      setError(errorMessage);
+      const nextError = err instanceof Error ? err : new Error(getErrorMessage(err, 'Failed to send message'));
+      setError(nextError);
       
       // Remove the user message on error to avoid confusion
       setMessages((prev) => prev.filter((msg) => msg.id !== userMessage.id));
@@ -105,12 +108,17 @@ export function useChat(): UseChatResult {
     setTotalTokensUsed(0);
   }, []);
 
+  const clearError = useCallback(() => {
+    setError(null);
+  }, []);
+
   return {
     messages,
     isLoading,
     error,
     totalTokensUsed,
     sendMessage,
+    clearError,
     clearMessages,
   };
 }

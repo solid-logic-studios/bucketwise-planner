@@ -1,6 +1,6 @@
 import { GoogleGenAI } from '@google/genai';
-import { DomainError } from '../../domain/exceptions/domain-error.js';
 import type { AiResponse, IAiProvider, TokenUsage } from '../../domain/services/ai-provider.interface.js';
+import { UserFacingError } from '../../shared/errors/user-facing-error.js';
 
 type GeminiUsageMetadata = {
   promptTokenCount?: number;
@@ -14,21 +14,27 @@ type GeminiGenerateContentResponse = {
 };
 
 /**
- * GeminiAiProviderError: Domain error for Gemini API failures.
+ * GeminiAiProviderError: User-facing error for Gemini API failures.
  * Thrown when the Google Gen AI API call fails.
  * 
- * @extends DomainError
+ * @extends UserFacingError
  */
-export class GeminiAiProviderError extends DomainError {
-  constructor(message: string) {
-    super(`Gemini AI Provider Error: ${message}`);
+export class GeminiAiProviderError extends UserFacingError {
+  constructor(message: string, details?: Record<string, unknown>) {
+    super(
+      502,
+      'AI_PROVIDER_ERROR',
+      message,
+      details,
+    );
     Object.setPrototypeOf(this, GeminiAiProviderError.prototype);
   }
 }
 
 /**
  * GeminiAiProvider: Implements IAiProvider using Google Gen AI SDK.
- * Uses the gemini-2.5-flash model for speed and efficiency.
+ * Uses `GeminiAiProvider.DEFAULT_MODEL_NAME` by default, with an optional
+ * constructor override for deployments that need a different Gemini alias.
  * 
  * IMPORTANT: Accepts systemInstruction in constructor to enforce strict
  * behavioral guidelines (e.g., Barefoot Investor methodology). This is
@@ -48,7 +54,9 @@ export class GeminiAiProviderError extends DomainError {
  */
 export class GeminiAiProvider implements IAiProvider {
   private readonly client: GoogleGenAI;
-  private readonly modelName = 'gemini-2.5-flash';
+  static readonly DEFAULT_MODEL_NAME = 'gemini-2.5-flash';
+
+  private readonly modelName: string;
   private readonly systemInstruction: string;
 
   /**
@@ -58,7 +66,7 @@ export class GeminiAiProvider implements IAiProvider {
    * @param systemInstruction - System-level instruction for model behavior (e.g., Barefoot methodology)
    * @throws GeminiAiProviderError if apiKey is missing or invalid
    */
-  constructor(apiKey: string, systemInstruction: string) {
+  constructor(apiKey: string, systemInstruction: string, modelName = GeminiAiProvider.DEFAULT_MODEL_NAME) {
     if (!apiKey || typeof apiKey !== 'string') {
       throw new GeminiAiProviderError('API key is required and must be a string');
     }
@@ -67,8 +75,13 @@ export class GeminiAiProvider implements IAiProvider {
       throw new GeminiAiProviderError('System instruction is required and must be a string');
     }
 
+    if (!modelName || typeof modelName !== 'string' || modelName.trim().length === 0) {
+      throw new GeminiAiProviderError('Model name is required and must be a non-empty string');
+    }
+
     this.client = new GoogleGenAI({ apiKey });
     this.systemInstruction = systemInstruction;
+    this.modelName = modelName.trim();
   }
 
   /**
@@ -127,9 +140,15 @@ export class GeminiAiProvider implements IAiProvider {
         throw error;
       }
 
-      // Otherwise, wrap in GeminiAiProviderError
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      throw new GeminiAiProviderError(`Failed to generate response: ${errorMessage}`);
+      console.error(`[AI] Gemini request failed for model "${this.modelName}"`, error);
+      throw new GeminiAiProviderError(
+        'AI advisor request failed. Please try again in a moment. If this keeps happening, check the backend logs or verify the Gemini model configuration.',
+        {
+          model: this.modelName,
+          originalError: errorMessage,
+        },
+      );
     }
   }
 }
